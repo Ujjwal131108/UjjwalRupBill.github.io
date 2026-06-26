@@ -263,29 +263,39 @@
     }
 
   async function downloadAsPDF() {
-  const element = document.getElementById('invoiceContent');
-  
-  const opt = {
-    margin: 10,
-    filename: `invoice-${invoiceData.invoiceNum}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#1a1a1a',
-      scrollY: -window.scrollY,
-      windowWidth: element.scrollWidth,
-      windowHeight: element.scrollHeight
-    },
-    jsPDF: {
-      unit: 'mm',
-      format: 'a4',
-      orientation: 'portrait'
-    }
-  };
+    const element = document.getElementById("invoiceContent");
 
-  await html2pdf().set(opt).from(element).save();
+    if (!element) {
+        alert("Invoice element not found!");
+        return;
+    }
+
+    // Wait for rendering to finish
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const opt = {
+        margin: 8,
+        filename: `invoice-${invoiceData.invoiceNum}.pdf`,
+        image: {
+            type: "jpeg",
+            quality: 1
+        },
+        html2canvas: {
+            scale: 3,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: "#1a1a1a",
+            logging: true
+        },
+        jsPDF: {
+            unit: "mm",
+            format: "a4",
+            orientation: "portrait"
+        }
+    };
+
+    await html2pdf().set(opt).from(element).save();
 }
     function downloadAsWordAlt() {
       // Fallback Word download as HTML (opens as Word doc)
