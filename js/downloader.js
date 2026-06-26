@@ -305,34 +305,20 @@ async function downloadAsPDF() {
     const pageHeight = pdf.internal.pageSize.getHeight();
 
     const imgWidth = pageWidth;
-let imgHeight = (canvas.height * imgWidth) / canvas.width;
+const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-// If it fits, keep it on one page
-if (imgHeight <= pageHeight) {
+let heightLeft = imgHeight;
+let position = 0;
 
-    pdf.addImage(
-        imgData,
-        "PNG",
-        0,
-        0,
-        imgWidth,
-        imgHeight
-    );
+pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
 
-} else {
+heightLeft -= pageHeight;
 
-    // Scale it down to fit one page
-    const scale = pageHeight / imgHeight;
-
-    pdf.addImage(
-        imgData,
-        "PNG",
-        0,
-        0,
-        imgWidth * scale,
-        pageHeight
-    );
-
+while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
 }
     function downloadAsWordAlt() {
       // Fallback Word download as HTML (opens as Word doc)
