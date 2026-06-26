@@ -320,6 +320,7 @@ while (heightLeft > 0) {
     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
     heightLeft -= pageHeight;
 }
+pdf.save(`invoice-${invoiceData.invoiceNum}.pdf`);
     function downloadAsWordAlt() {
       // Fallback Word download as HTML (opens as Word doc)
       return new Promise((resolve, reject) => {
