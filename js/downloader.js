@@ -263,128 +263,29 @@
     }
 
   async function downloadAsPDF() {
-  const d = invoiceData;
-  const cur = d.currency || '₹';
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-
-  const green = [116, 183, 46];
-  const black = [30, 30, 30];
-  const white = [255, 255, 255];
-  const lightGray = [245, 245, 245];
-
-  let y = 15;
-  const L = 15, R = 195;
-
-  // Header
-  doc.setFillColor(...green);
-  doc.rect(L, y, R - L, 14, 'F');
-  doc.setTextColor(...white);
-  doc.setFontSize(20);
-  doc.setFont('helvetica', 'bold');
-  doc.text('INVOICE', L + 4, y + 10);
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`#${d.invoiceNum}`, R - 4, y + 10, { align: 'right' });
-  y += 20;
-
-  // From / Bill To / Dates
-  doc.setTextColor(...green);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-  doc.text('FROM', L, y);
-  doc.text('BILL TO', 80, y);
-  doc.text('DATES', 150, y);
-  y += 5;
-
-  doc.setTextColor(...black);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.text(d.from || '', L, y);
-  doc.text(d.to || '', 80, y);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Invoice: ${d.date}`, 150, y);
-  y += 5;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  if (d.fromContact) { doc.text(`Contact: ${d.fromContact}`, L, y); }
-  if (d.toGst) { doc.text(`GST: ${d.toGst}`, 80, y); }
-  doc.text(`Due: ${d.dueDate}`, 150, y);
-  y += 5;
-
-  if (d.fromGst) { doc.text(`GST: ${d.fromGst}`, L, y); }
-  y += 10;
-
-  // Table header
-  doc.setFillColor(...green);
-  doc.rect(L, y, R - L, 8, 'F');
-  doc.setTextColor(...white);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
-  doc.text('Description', L + 3, y + 5.5);
-  doc.text('Qty', 130, y + 5.5, { align: 'center' });
-  doc.text('Rate', 158, y + 5.5, { align: 'right' });
-  doc.text('Amount', R - 3, y + 5.5, { align: 'right' });
-  y += 10;
-
-  // Items
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  d.items.forEach((item, i) => {
-    const qty = parseFloat(item.qty) || 0;
-    const rate = parseFloat(item.rate) || 0;
-    const amount = qty * rate;
-    if (i % 2 === 0) {
-      doc.setFillColor(...lightGray);
-      doc.rect(L, y - 4, R - L, 8, 'F');
+  const element = document.getElementById('invoiceContent');
+  
+  const opt = {
+    margin: 10,
+    filename: `invoice-${invoiceData.invoiceNum}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#1a1a1a',
+      scrollY: -window.scrollY,
+      windowWidth: element.scrollWidth,
+      windowHeight: element.scrollHeight
+    },
+    jsPDF: {
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait'
     }
-    doc.setTextColor(...black);
-    doc.text(item.desc || '', L + 3, y + 1);
-    doc.text(String(qty), 130, y + 1, { align: 'center' });
-    doc.text(`${cur}${rate.toLocaleString('en-IN')}`, 158, y + 1, { align: 'right' });
-    doc.text(`${cur}${amount.toLocaleString('en-IN')}`, R - 3, y + 1, { align: 'right' });
-    y += 8;
-  });
+  };
 
-  y += 4;
-  // Subtotal
-  doc.setFont('helvetica', 'normal');
-  doc.text('Subtotal', 158, y, { align: 'right' });
-  doc.text(`${cur}${d.subtotal.toLocaleString('en-IN')}`, R - 3, y, { align: 'right' });
-  y += 7;
-
-  // GST
-  if (d.gstRate > 0) {
-    doc.text(`GST (${d.gstRate}%)`, 158, y, { align: 'right' });
-    doc.text(`${cur}${d.gstAmount.toLocaleString('en-IN')}`, R - 3, y, { align: 'right' });
-    y += 7;
-  }
-
-  // Total
-  doc.setFillColor(...green);
-  doc.rect(L, y - 5, R - L, 10, 'F');
-  doc.setTextColor(...white);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  doc.text('TOTAL AMOUNT DUE', 158, y + 2, { align: 'right' });
-  doc.text(`${cur}${d.total.toLocaleString('en-IN')}`, R - 3, y + 2, { align: 'right' });
-  y += 15;
-
-  // Notes
-  if (d.notes) {
-    doc.setTextColor(...green);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.text('NOTES', L, y);
-    y += 5;
-    doc.setTextColor(...black);
-    doc.setFont('helvetica', 'normal');
-    const lines = doc.splitTextToSize(d.notes, R - L);
-    doc.text(lines, L, y);
-  }
-
-  doc.save(`invoice-${d.invoiceNum}.pdf`);
+  await html2pdf().set(opt).from(element).save();
 }
     function downloadAsWordAlt() {
       // Fallback Word download as HTML (opens as Word doc)
