@@ -262,25 +262,25 @@
       document.body.removeChild(a);
     }
 
-   async function downloadAsPDF() {
+  async function downloadAsPDF() {
   const element = document.getElementById('invoiceContent');
-  
-  // Temporarily force light background for PDF rendering
-  const originalBg = element.style.background;
-  const originalColor = element.style.color;
-  element.style.background = '#ffffff';
-  element.style.color = '#000000';
+
+  // Clone the invoice into a clean isolated wrapper
+  const clone = element.cloneNode(true);
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'position:fixed;top:0;left:0;width:794px;background:#ffffff;padding:20px;box-sizing:border-box;z-index:-9999;';
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
 
   const opt = {
-    margin: [10, 10, 10, 10],
+    margin: 10,
     filename: `invoice-${invoiceData.invoiceNum}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: {
       scale: 2,
       useCORS: true,
       logging: false,
-      backgroundColor: '#ffffff',
-      windowWidth: 794
+      backgroundColor: '#ffffff'
     },
     jsPDF: {
       unit: 'mm',
@@ -289,11 +289,8 @@
     }
   };
 
-  await html2pdf().set(opt).from(element).save();
-
-  // Restore original styles
-  element.style.background = originalBg;
-  element.style.color = originalColor;
+  await html2pdf().set(opt).from(wrapper).save();
+  document.body.removeChild(wrapper);
 }
     function downloadAsWordAlt() {
       // Fallback Word download as HTML (opens as Word doc)
