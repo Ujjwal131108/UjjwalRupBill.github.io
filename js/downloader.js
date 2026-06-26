@@ -265,95 +265,126 @@
   async function downloadAsPDF() {
   const d = invoiceData;
   const cur = d.currency || '₹';
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
-  let itemsHTML = d.items.map(item => {
+  const green = [116, 183, 46];
+  const black = [30, 30, 30];
+  const white = [255, 255, 255];
+  const lightGray = [245, 245, 245];
+
+  let y = 15;
+  const L = 15, R = 195;
+
+  // Header
+  doc.setFillColor(...green);
+  doc.rect(L, y, R - L, 14, 'F');
+  doc.setTextColor(...white);
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text('INVOICE', L + 4, y + 10);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`#${d.invoiceNum}`, R - 4, y + 10, { align: 'right' });
+  y += 20;
+
+  // From / Bill To / Dates
+  doc.setTextColor(...green);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.text('FROM', L, y);
+  doc.text('BILL TO', 80, y);
+  doc.text('DATES', 150, y);
+  y += 5;
+
+  doc.setTextColor(...black);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.text(d.from || '', L, y);
+  doc.text(d.to || '', 80, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Invoice: ${d.date}`, 150, y);
+  y += 5;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  if (d.fromContact) { doc.text(`Contact: ${d.fromContact}`, L, y); }
+  if (d.toGst) { doc.text(`GST: ${d.toGst}`, 80, y); }
+  doc.text(`Due: ${d.dueDate}`, 150, y);
+  y += 5;
+
+  if (d.fromGst) { doc.text(`GST: ${d.fromGst}`, L, y); }
+  y += 10;
+
+  // Table header
+  doc.setFillColor(...green);
+  doc.rect(L, y, R - L, 8, 'F');
+  doc.setTextColor(...white);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('Description', L + 3, y + 5.5);
+  doc.text('Qty', 130, y + 5.5, { align: 'center' });
+  doc.text('Rate', 158, y + 5.5, { align: 'right' });
+  doc.text('Amount', R - 3, y + 5.5, { align: 'right' });
+  y += 10;
+
+  // Items
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  d.items.forEach((item, i) => {
     const qty = parseFloat(item.qty) || 0;
     const rate = parseFloat(item.rate) || 0;
     const amount = qty * rate;
-    return `<tr>
-      <td style="padding:10px;border:1px solid #ddd;">${item.desc || ''}</td>
-      <td style="padding:10px;border:1px solid #ddd;text-align:center;">${qty}</td>
-      <td style="padding:10px;border:1px solid #ddd;text-align:right;">${cur}${rate.toLocaleString('en-IN')}</td>
-      <td style="padding:10px;border:1px solid #ddd;text-align:right;">${cur}${amount.toLocaleString('en-IN')}</td>
-    </tr>`;
-  }).join('');
+    if (i % 2 === 0) {
+      doc.setFillColor(...lightGray);
+      doc.rect(L, y - 4, R - L, 8, 'F');
+    }
+    doc.setTextColor(...black);
+    doc.text(item.desc || '', L + 3, y + 1);
+    doc.text(String(qty), 130, y + 1, { align: 'center' });
+    doc.text(`${cur}${rate.toLocaleString('en-IN')}`, 158, y + 1, { align: 'right' });
+    doc.text(`${cur}${amount.toLocaleString('en-IN')}`, R - 3, y + 1, { align: 'right' });
+    y += 8;
+  });
 
-  const gstRow = d.gstRate > 0 ? `<tr>
-    <td colspan="3" style="padding:10px;border:1px solid #ddd;text-align:right;font-weight:bold;">GST (${d.gstRate}%)</td>
-    <td style="padding:10px;border:1px solid #ddd;text-align:right;">${cur}${d.gstAmount.toLocaleString('en-IN')}</td>
-  </tr>` : '';
+  y += 4;
+  // Subtotal
+  doc.setFont('helvetica', 'normal');
+  doc.text('Subtotal', 158, y, { align: 'right' });
+  doc.text(`${cur}${d.subtotal.toLocaleString('en-IN')}`, R - 3, y, { align: 'right' });
+  y += 7;
 
-  const html = `
-    <div style="font-family:Arial,sans-serif;padding:40px;color:#222;max-width:750px;margin:0 auto;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #74B72E;">
-        <div style="font-size:36px;font-weight:900;color:#74B72E;letter-spacing:2px;">INVOICE</div>
-        <div style="font-size:18px;color:#666;">#${d.invoiceNum}</div>
-      </div>
+  // GST
+  if (d.gstRate > 0) {
+    doc.text(`GST (${d.gstRate}%)`, 158, y, { align: 'right' });
+    doc.text(`${cur}${d.gstAmount.toLocaleString('en-IN')}`, R - 3, y, { align: 'right' });
+    y += 7;
+  }
 
-      <div style="display:flex;justify-content:space-between;margin-bottom:30px;">
-        <div>
-          <div style="color:#74B72E;font-weight:bold;margin-bottom:6px;text-transform:uppercase;">From</div>
-          <div><strong>${d.from || ''}</strong></div>
-          ${d.fromContact ? `<div>Contact: ${d.fromContact}</div>` : ''}
-          ${d.fromGst ? `<div>GST: ${d.fromGst}</div>` : ''}
-        </div>
-        <div>
-          <div style="color:#74B72E;font-weight:bold;margin-bottom:6px;text-transform:uppercase;">Bill To</div>
-          <div><strong>${d.to || ''}</strong></div>
-          ${d.toGst ? `<div>GST: ${d.toGst}</div>` : ''}
-        </div>
-        <div>
-          <div style="color:#74B72E;font-weight:bold;margin-bottom:6px;text-transform:uppercase;">Dates</div>
-          <div>Invoice: ${d.date}</div>
-          <div>Due: ${d.dueDate}</div>
-        </div>
-      </div>
+  // Total
+  doc.setFillColor(...green);
+  doc.rect(L, y - 5, R - L, 10, 'F');
+  doc.setTextColor(...white);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.text('TOTAL AMOUNT DUE', 158, y + 2, { align: 'right' });
+  doc.text(`${cur}${d.total.toLocaleString('en-IN')}`, R - 3, y + 2, { align: 'right' });
+  y += 15;
 
-      <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
-        <thead>
-          <tr style="background:#74B72E;color:#fff;">
-            <th style="padding:12px;text-align:left;">Description</th>
-            <th style="padding:12px;text-align:center;">Qty</th>
-            <th style="padding:12px;text-align:right;">Rate</th>
-            <th style="padding:12px;text-align:right;">Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${itemsHTML}
-          <tr>
-            <td colspan="3" style="padding:10px;border:1px solid #ddd;text-align:right;font-weight:bold;">Subtotal</td>
-            <td style="padding:10px;border:1px solid #ddd;text-align:right;">${cur}${d.subtotal.toLocaleString('en-IN')}</td>
-          </tr>
-          ${gstRow}
-          <tr style="background:#74B72E;color:#fff;">
-            <td colspan="3" style="padding:12px;text-align:right;font-weight:bold;">Total Amount Due</td>
-            <td style="padding:12px;text-align:right;font-weight:bold;">${cur}${d.total.toLocaleString('en-IN')}</td>
-          </tr>
-        </tbody>
-      </table>
+  // Notes
+  if (d.notes) {
+    doc.setTextColor(...green);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text('NOTES', L, y);
+    y += 5;
+    doc.setTextColor(...black);
+    doc.setFont('helvetica', 'normal');
+    const lines = doc.splitTextToSize(d.notes, R - L);
+    doc.text(lines, L, y);
+  }
 
-      ${d.notes ? `<div style="margin-top:20px;padding:15px;background:#f9f9f9;border-left:4px solid #74B72E;">
-        <div style="color:#74B72E;font-weight:bold;margin-bottom:6px;">NOTES</div>
-        <div>${d.notes.replace(/\n/g, '<br>')}</div>
-      </div>` : ''}
-    </div>
-  `;
-
-  const temp = document.createElement('div');
-  temp.style.cssText = 'position:fixed;top:0;left:-9999px;width:794px;background:#fff;';
-  temp.innerHTML = html;
-  document.body.appendChild(temp);
-
-  const opt = {
-    margin: 0,
-    filename: `invoice-${d.invoiceNum}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
-
-  await html2pdf().set(opt).from(temp).save();
-  document.body.removeChild(temp);
+  doc.save(`invoice-${d.invoiceNum}.pdf`);
 }
     function downloadAsWordAlt() {
       // Fallback Word download as HTML (opens as Word doc)
