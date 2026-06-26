@@ -266,36 +266,29 @@
     const element = document.getElementById("invoiceContent");
 
     if (!element) {
-        alert("Invoice element not found!");
+        alert("Invoice not found");
         return;
     }
 
-    // Wait for rendering to finish
-    await new Promise(resolve => requestAnimationFrame(resolve));
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Wait for fonts and rendering
+    if (document.fonts) {
+        await document.fonts.ready;
+    }
 
-    const opt = {
-        margin: 8,
-        filename: `invoice-${invoiceData.invoiceNum}.pdf`,
-        image: {
-            type: "jpeg",
-            quality: 1
-        },
-        html2canvas: {
-            scale: 3,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: "#1a1a1a",
-            logging: true
-        },
-        jsPDF: {
-            unit: "mm",
-            format: "a4",
-            orientation: "portrait"
-        }
-    };
+    await new Promise(r => requestAnimationFrame(r));
+    await new Promise(r => setTimeout(r, 500));
 
-    await html2pdf().set(opt).from(element).save();
+    const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: true,
+        backgroundColor: "#1a1a1a"
+    });
+
+    // TEST: open the captured image
+    const img = canvas.toDataURL("image/png");
+    window.open(img);
 }
     function downloadAsWordAlt() {
       // Fallback Word download as HTML (opens as Word doc)
