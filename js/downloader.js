@@ -291,7 +291,8 @@ async function downloadAsPDF() {
         scrollY: 0
     });
 
-    const imgData = canvas.toDataURL("image/png");
+    const imgData = canvas.toDataURL("image/jpeg", 1.0);
+    pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
 
     const { jsPDF } = window.jspdf;
 
