@@ -262,32 +262,39 @@
       document.body.removeChild(a);
     }
 
-    async function downloadAsPDF() {
-      const element = document.getElementById('invoiceContent');
-      const opt = {
-      margin: 5,
-      filename: `invoice-${invoiceData.invoiceNum}.pdf`,
-      image: {
-        type: 'jpeg',
-        quality: 1
-      },
-      html2canvas: {
-        scale: 4,
-        useCORS: true,
-        logging: false
-      },
-      pagebreak: {
-        mode: ['avoid-all']
-      },
-      jsPDF: {
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'portrait'
-      }
-    };
-      await html2pdf().set(opt).from(element).save();
-    }
+   async function downloadAsPDF() {
+  const element = document.getElementById('invoiceContent');
+  
+  // Temporarily force light background for PDF rendering
+  const originalBg = element.style.background;
+  const originalColor = element.style.color;
+  element.style.background = '#ffffff';
+  element.style.color = '#000000';
 
+  const opt = {
+    margin: [10, 10, 10, 10],
+    filename: `invoice-${invoiceData.invoiceNum}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+      windowWidth: 794
+    },
+    jsPDF: {
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait'
+    }
+  };
+
+  await html2pdf().set(opt).from(element).save();
+
+  // Restore original styles
+  element.style.background = originalBg;
+  element.style.color = originalColor;
+}
     function downloadAsWordAlt() {
       // Fallback Word download as HTML (opens as Word doc)
       return new Promise((resolve, reject) => {
