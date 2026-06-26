@@ -263,34 +263,97 @@
     }
 
   async function downloadAsPDF() {
-  const element = document.getElementById('invoiceContent');
+  const d = invoiceData;
+  const cur = d.currency || '₹';
 
-  // Clone the invoice into a clean isolated wrapper
-  const clone = element.cloneNode(true);
-  const wrapper = document.createElement('div');
-  wrapper.style.cssText = 'position:fixed;top:0;left:0;width:794px;background:#ffffff;padding:20px;box-sizing:border-box;z-index:-9999;';
-  wrapper.appendChild(clone);
-  document.body.appendChild(wrapper);
+  let itemsHTML = d.items.map(item => {
+    const qty = parseFloat(item.qty) || 0;
+    const rate = parseFloat(item.rate) || 0;
+    const amount = qty * rate;
+    return `<tr>
+      <td style="padding:10px;border:1px solid #ddd;">${item.desc || ''}</td>
+      <td style="padding:10px;border:1px solid #ddd;text-align:center;">${qty}</td>
+      <td style="padding:10px;border:1px solid #ddd;text-align:right;">${cur}${rate.toLocaleString('en-IN')}</td>
+      <td style="padding:10px;border:1px solid #ddd;text-align:right;">${cur}${amount.toLocaleString('en-IN')}</td>
+    </tr>`;
+  }).join('');
+
+  const gstRow = d.gstRate > 0 ? `<tr>
+    <td colspan="3" style="padding:10px;border:1px solid #ddd;text-align:right;font-weight:bold;">GST (${d.gstRate}%)</td>
+    <td style="padding:10px;border:1px solid #ddd;text-align:right;">${cur}${d.gstAmount.toLocaleString('en-IN')}</td>
+  </tr>` : '';
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;padding:40px;color:#222;max-width:750px;margin:0 auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #74B72E;">
+        <div style="font-size:36px;font-weight:900;color:#74B72E;letter-spacing:2px;">INVOICE</div>
+        <div style="font-size:18px;color:#666;">#${d.invoiceNum}</div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;margin-bottom:30px;">
+        <div>
+          <div style="color:#74B72E;font-weight:bold;margin-bottom:6px;text-transform:uppercase;">From</div>
+          <div><strong>${d.from || ''}</strong></div>
+          ${d.fromContact ? `<div>Contact: ${d.fromContact}</div>` : ''}
+          ${d.fromGst ? `<div>GST: ${d.fromGst}</div>` : ''}
+        </div>
+        <div>
+          <div style="color:#74B72E;font-weight:bold;margin-bottom:6px;text-transform:uppercase;">Bill To</div>
+          <div><strong>${d.to || ''}</strong></div>
+          ${d.toGst ? `<div>GST: ${d.toGst}</div>` : ''}
+        </div>
+        <div>
+          <div style="color:#74B72E;font-weight:bold;margin-bottom:6px;text-transform:uppercase;">Dates</div>
+          <div>Invoice: ${d.date}</div>
+          <div>Due: ${d.dueDate}</div>
+        </div>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+        <thead>
+          <tr style="background:#74B72E;color:#fff;">
+            <th style="padding:12px;text-align:left;">Description</th>
+            <th style="padding:12px;text-align:center;">Qty</th>
+            <th style="padding:12px;text-align:right;">Rate</th>
+            <th style="padding:12px;text-align:right;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHTML}
+          <tr>
+            <td colspan="3" style="padding:10px;border:1px solid #ddd;text-align:right;font-weight:bold;">Subtotal</td>
+            <td style="padding:10px;border:1px solid #ddd;text-align:right;">${cur}${d.subtotal.toLocaleString('en-IN')}</td>
+          </tr>
+          ${gstRow}
+          <tr style="background:#74B72E;color:#fff;">
+            <td colspan="3" style="padding:12px;text-align:right;font-weight:bold;">Total Amount Due</td>
+            <td style="padding:12px;text-align:right;font-weight:bold;">${cur}${d.total.toLocaleString('en-IN')}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      ${d.notes ? `<div style="margin-top:20px;padding:15px;background:#f9f9f9;border-left:4px solid #74B72E;">
+        <div style="color:#74B72E;font-weight:bold;margin-bottom:6px;">NOTES</div>
+        <div>${d.notes.replace(/\n/g, '<br>')}</div>
+      </div>` : ''}
+    </div>
+  `;
+
+  const temp = document.createElement('div');
+  temp.style.cssText = 'position:fixed;top:0;left:-9999px;width:794px;background:#fff;';
+  temp.innerHTML = html;
+  document.body.appendChild(temp);
 
   const opt = {
-    margin: 10,
-    filename: `invoice-${invoiceData.invoiceNum}.pdf`,
+    margin: 0,
+    filename: `invoice-${d.invoiceNum}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff'
-    },
-    jsPDF: {
-      unit: 'mm',
-      format: 'a4',
-      orientation: 'portrait'
-    }
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
-  await html2pdf().set(opt).from(wrapper).save();
-  document.body.removeChild(wrapper);
+  await html2pdf().set(opt).from(temp).save();
+  document.body.removeChild(temp);
 }
     function downloadAsWordAlt() {
       // Fallback Word download as HTML (opens as Word doc)
