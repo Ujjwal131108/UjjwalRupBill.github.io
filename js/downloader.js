@@ -1,75 +1,74 @@
-    // Domain lock — breaks if run locally or on another domain
-      (function() {
-        const allowed = ['ujjwal131108.github.io'];
-        const host = window.location.hostname;
-        if (!allowed.includes(host)) {
-          document.body.innerHTML = '<h2 style="text-align:center;margin-top:20vh">This tool only works at rupbill.github.io</h2>';
-          throw new Error('Unauthorized domain');
-        }
-      })();
-    let downloadCount = 0;
-    let invoiceData = {};
-
-    // Load data from localStorage or use defaults
-    function loadInvoiceData() {
-      const savedData = localStorage.getItem('invoiceData');
-      
-      if (savedData) {
-        const data = JSON.parse(savedData);
-        invoiceData = {
-          invoiceNum: data.invoiceNum,
-          from: data.from,
-          fromGst: data.fromGst,
-          fromContact: data.fromContact,
-          to: data.to,
-          toGst: data.toGst,
-          date: data.date ? new Date(data.date).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN'),
-          dueDate: data.dueDate ? new Date(data.dueDate).toLocaleDateString('en-IN') : new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN'),
-          currency: data.currency || '₹',
-          gstRate: data.gstRate || 18,
-          notes: data.notes,
-          items: data.items || []
-        };
-      } else {
-        // Fallback default data
-        invoiceData = {
-          invoiceNum: 'INV-001',
-          from: 'Your Business Name',
-          fromGst: '27AABCU9603R1ZX',
-          fromContact: 'business@example.com',
-          to: 'Client Name',
-          toGst: '22AAAAA0000A1Z5',
-          date: new Date().toLocaleDateString('en-IN'),
-          dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN'),
-          currency: '₹',
-          gstRate: 18,
-          notes: 'Please pay within 15 days via bank transfer or UPI.',
-          items: [
-            { desc: 'Web Development', qty: 1, rate: 10000, amount: 10000 },
-            { desc: 'UI/UX Design', qty: 1, rate: 5000, amount: 5000 },
-            { desc: 'Hosting Setup', qty: 1, rate: 2000, amount: 2000 }
-          ]
-        };
-      }
-
-      // Calculate totals
-      let subtotal = 0;
-      invoiceData.items.forEach(item => {
-        subtotal += (parseFloat(item.qty) || 0) * (parseFloat(item.rate) || 0);
-      });
-      invoiceData.subtotal = subtotal;
-      invoiceData.gstAmount = invoiceData.gstRate > 0 ? subtotal * (invoiceData.gstRate / 100) : 0;
-      invoiceData.total = subtotal + invoiceData.gstAmount;
-
-      updateInvoiceDisplay();
-    }
-
-    // Update invoice display with loaded data
-    function updateInvoiceDisplay() {
-  const invoiceNumEl = document.querySelector('.invoice-num');
-  if (invoiceNumEl) {
-    invoiceNumEl.textContent = `#${invoiceData.invoiceNum}`;
+// Domain lock
+(function() {
+  const allowed = ['ujjwal131108.github.io'];
+  const host = window.location.hostname;
+  if (!allowed.includes(host)) {
+    document.body.innerHTML = '<h2 style="text-align:center;margin-top:20vh;font-family:sans-serif;">This tool only works at ujjwal131108.github.io</h2>';
+    throw new Error('Unauthorized domain');
   }
+})();
+
+let downloadCount = 0;
+let invoiceData = {};
+
+// ── Load data from localStorage ──
+function loadInvoiceData() {
+  const savedData = localStorage.getItem('invoiceData');
+  if (savedData) {
+    const data = JSON.parse(savedData);
+    invoiceData = {
+      invoiceNum: data.invoiceNum || 'INV-001',
+      from: data.from || '',
+      fromGst: data.fromGst || '',
+      fromContact: data.fromContact || '',
+      to: data.to || '',
+      toGst: data.toGst || '',
+      date: data.date ? new Date(data.date).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN'),
+      dueDate: data.dueDate ? new Date(data.dueDate).toLocaleDateString('en-IN') : '',
+      currency: data.currency || '₹',
+      gstRate: data.gstRate || 0,
+      notes: data.notes || '',
+      items: data.items || []
+    };
+  } else {
+    invoiceData = {
+      invoiceNum: 'INV-001',
+      from: 'Your Business Name',
+      fromGst: '27AABCU9603R1ZX',
+      fromContact: 'business@example.com',
+      to: 'Client Name',
+      toGst: '22AAAAA0000A1Z5',
+      date: new Date().toLocaleDateString('en-IN'),
+      dueDate: new Date(Date.now() + 15*24*60*60*1000).toLocaleDateString('en-IN'),
+      currency: '₹',
+      gstRate: 18,
+      notes: 'Please pay within 15 days via bank transfer or UPI.',
+      items: [
+        { desc: 'Web Development', qty: 1, rate: 10000 },
+        { desc: 'UI/UX Design', qty: 1, rate: 5000 },
+        { desc: 'Hosting Setup', qty: 1, rate: 2000 }
+      ]
+    };
+  }
+
+  // Calculate totals
+  let subtotal = 0;
+  invoiceData.items.forEach(item => {
+    subtotal += (parseFloat(item.qty) || 0) * (parseFloat(item.rate) || 0);
+  });
+  invoiceData.subtotal = subtotal;
+  invoiceData.gstAmount = invoiceData.gstRate > 0 ? subtotal * (invoiceData.gstRate / 100) : 0;
+  invoiceData.total = subtotal + invoiceData.gstAmount;
+
+  updateInvoiceDisplay();
+}
+
+// ── Update invoice display ──
+function updateInvoiceDisplay() {
+  const cur = invoiceData.currency || '₹';
+
+  const invoiceNumEl = document.querySelector('.invoice-num');
+  if (invoiceNumEl) invoiceNumEl.textContent = `#${invoiceData.invoiceNum}`;
 
   const invDate = document.getElementById('invDate');
   if (invDate) invDate.textContent = invoiceData.date;
@@ -83,607 +82,358 @@
     sections[0].innerHTML = `
       <div class="section-label">From</div>
       <div class="section-content">
-        <strong>${invoiceData.from || ''}</strong><br>
+        <strong>${invoiceData.from}</strong><br>
         ${invoiceData.fromContact ? `Contact: ${invoiceData.fromContact}<br>` : ''}
         ${invoiceData.fromGst ? `GST: ${invoiceData.fromGst}` : ''}
-      </div>
-    `;
+      </div>`;
   }
 
   if (sections[1]) {
     sections[1].innerHTML = `
       <div class="section-label">Bill To</div>
       <div class="section-content">
-        <strong>${invoiceData.to || ''}</strong><br>
+        <strong>${invoiceData.to}</strong><br>
         ${invoiceData.toGst ? `GST: ${invoiceData.toGst}` : ''}
-      </div>
-    `;
+      </div>`;
   }
 
   const tbody = document.querySelector('.invoice-table tbody');
-
   if (tbody) {
     let html = '';
-
     invoiceData.items.forEach(item => {
       const qty = Number(item.qty) || 0;
       const rate = Number(item.rate) || 0;
       const amount = qty * rate;
-
-      html += `
-        <tr>
-          <td>${item.desc || ''}</td>
-          <td>${qty}</td>
-          <td>${invoiceData.currency}${rate.toLocaleString('en-IN')}</td>
-          <td>${invoiceData.currency}${amount.toLocaleString('en-IN')}</td>
-        </tr>
-      `;
+      html += `<tr>
+        <td>${item.desc || ''}</td>
+        <td>${qty}</td>
+        <td>${cur}${rate.toLocaleString('en-IN')}</td>
+        <td>${cur}${amount.toLocaleString('en-IN')}</td>
+      </tr>`;
     });
 
-    html += `
-      <tr class="total-row">
-        <td colspan="3" style="text-align:right;">Subtotal</td>
-        <td>${invoiceData.currency}${invoiceData.subtotal.toLocaleString('en-IN')}</td>
-      </tr>
-    `;
-
+    html += `<tr class="total-row"><td colspan="3" style="text-align:right;">Subtotal</td><td>${cur}${invoiceData.subtotal.toLocaleString('en-IN')}</td></tr>`;
     if (invoiceData.gstRate > 0) {
-      html += `
-        <tr class="total-row">
-          <td colspan="3" style="text-align:right;">
-            GST (${invoiceData.gstRate}%)
-          </td>
-          <td>${invoiceData.currency}${invoiceData.gstAmount.toLocaleString('en-IN')}</td>
-        </tr>
-      `;
+      html += `<tr class="total-row"><td colspan="3" style="text-align:right;">GST (${invoiceData.gstRate}%)</td><td>${cur}${invoiceData.gstAmount.toLocaleString('en-IN')}</td></tr>`;
     }
-
-    html += `
-      <tr class="total-row">
-        <td colspan="3" style="text-align:right;">
-          Total Amount Due
-        </td>
-        <td>${invoiceData.currency}${invoiceData.total.toLocaleString('en-IN')}</td>
-      </tr>
-    `;
-
+    html += `<tr class="total-row"><td colspan="3" style="text-align:right;">Total Amount Due</td><td>${cur}${invoiceData.total.toLocaleString('en-IN')}</td></tr>`;
     tbody.innerHTML = html;
   }
 
   if (sections[3] && invoiceData.notes) {
     sections[3].innerHTML = `
       <div class="section-label">Notes</div>
-      <div class="section-content">
-        ${invoiceData.notes.replace(/\n/g, '<br>')}
-      </div>
-    `;
+      <div class="section-content">${invoiceData.notes.replace(/\n/g, '<br>')}</div>`;
   }
 }
 
-    // Load data when page loads
-    loadInvoiceData();
+// ── Button listeners ──
+document.querySelectorAll('.download-btn').forEach(btn => {
+  btn.addEventListener('click', async function() {
+    const format = this.dataset.format;
+    if (format) await handleDownload(format, this);
+  });
+});
 
-    // Add event listeners to all download buttons
-    document.querySelectorAll('.download-btn').forEach(btn => {
-      btn.addEventListener('click', async function() {
-        const format = this.dataset.format;
-        if (format) {
-          await handleDownload(format, this);
-        }
-      });
-    });
+async function handleDownload(format, btn) {
+  const originalHTML = btn.innerHTML;
+  try {
+    btn.disabled = true;
+    btn.innerHTML = `<span>Processing...</span>`;
 
-    async function handleDownload(format, btn) {
-      const originalHTML = btn.innerHTML;
-      const feedback = document.getElementById('feedback');
-
-      try {
-        btn.disabled = true;
-        btn.classList.add('loading');
-        btn.innerHTML = `<span class="spinner"></span> <span>Processing...</span>`;
-
-        // Simulate processing time
-        await new Promise(resolve => setTimeout(resolve, 1200));
-
-        let filename;
-
-        switch(format) {
-          case 'pdf':
-            await downloadAsPDF();
-            filename = `invoice-${invoiceData.invoiceNum}.pdf`;
-            break;
-          case 'word':
-            await downloadAsWord();
-            filename = `invoice-${invoiceData.invoiceNum}.docx`;
-            break;
-          case 'excel':
-            await downloadAsExcel();
-            filename = `invoice-${invoiceData.invoiceNum}.xlsx`;
-            break;
-          case 'csv':
-            await downloadAsCSV();
-            filename = `invoice-${invoiceData.invoiceNum}.csv`;
-            break;
-          case 'txt':
-            await downloadAsText();
-            filename = `invoice-${invoiceData.invoiceNum}.txt`;
-            break;
-        }
-
-        // Show success state
-        btn.classList.remove('loading');
-        btn.classList.add('success');
-        btn.innerHTML = `<span class="btn-icon">✓</span> <span>Downloaded!</span>`;
-
-        downloadCount++;
-        document.getElementById('counter').textContent = downloadCount;
-        showFeedback(`✓ Invoice downloaded as ${format.toUpperCase()}!`, 'success');
-
-        // Reset button
-        setTimeout(() => {
-          btn.disabled = false;
-          btn.classList.remove('success');
-          btn.innerHTML = originalHTML;
-        }, 2000);
-
-      } catch (error) {
-        console.error('Download failed:', error);
-        btn.classList.remove('loading');
-        btn.classList.add('error');
-        btn.innerHTML = `<span class="btn-icon">✗</span> <span>Failed</span>`;
-        showFeedback(`✗ Failed to download as ${format.toUpperCase()}`, 'error');
-
-        setTimeout(() => {
-          btn.disabled = false;
-          btn.classList.remove('error');
-          btn.innerHTML = originalHTML;
-        }, 2000);
-      }
+    switch(format) {
+      case 'pdf':   await downloadAsPDF(); break;
+      case 'word':  await downloadAsWord(); break;
+      case 'excel': await downloadAsExcel(); break;
+      case 'txt':   await downloadAsText(); break;
     }
 
-    function showFeedback(message, type) {
-      const feedback = document.getElementById('feedback');
-      feedback.textContent = message;
-      feedback.className = `feedback show ${type}`;
-      setTimeout(() => {
-        feedback.classList.remove('show');
-      }, 3000);
-    }
+    btn.innerHTML = `<span>✓ Downloaded!</span>`;
+    downloadCount++;
+    const counter = document.getElementById('counter');
+    if (counter) counter.textContent = downloadCount;
 
-    function downloadFile(data, filename, type) {
-      const blob = new Blob([data], { type: type });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    }
+    showFeedback(`✓ Downloaded as ${format.toUpperCase()}!`, 'success');
+    setTimeout(() => { btn.disabled = false; btn.innerHTML = originalHTML; }, 2000);
 
-async function downloadAsPDF() {
-    const element = document.getElementById("invoiceContent");
-
-    if (!element) {
-        alert("Invoice not found.");
-        return;
-    }
-
-    // Wait until everything is rendered
-    if (document.fonts) {
-        await document.fonts.ready;
-    }
-
-    await new Promise(resolve => requestAnimationFrame(resolve));
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    // Always capture from top
-    window.scrollTo(0, 0);
-
-    const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#101010",
-        logging: false,
-        scrollX: 0,
-        scrollY: 0
-    });
-
-    const imgData = canvas.toDataURL("image/png");
-
-    const { jsPDF } = window.jspdf;
-
-    const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4"
-    });
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    const imgWidth = pageWidth;
-const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-let heightLeft = imgHeight;
-let position = 0;
-
-pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-
-heightLeft -= pageHeight;
-
-while (heightLeft > 0) {
-    position = heightLeft - imgHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+  } catch (error) {
+    console.error('Download failed:', error);
+    btn.innerHTML = `<span>✗ Failed</span>`;
+    showFeedback(`✗ Failed to download as ${format.toUpperCase()}`, 'error');
+    setTimeout(() => { btn.disabled = false; btn.innerHTML = originalHTML; }, 2000);
+  }
 }
-pdf.save(`invoice-${invoiceData.invoiceNum}.pdf`);
-    function downloadAsWordAlt() {
-      // Fallback Word download as HTML (opens as Word doc)
-      return new Promise((resolve, reject) => {
-        try {
-          const html = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8">
-              <title>Invoice ${invoiceData.invoiceNum}</title>
-            </head>
-            <body>
-              <h1>INVOICE #${invoiceData.invoiceNum}</h1>
-              <p><b>FROM:</b> ${invoiceData.from}</p>
-              ${invoiceData.fromGst ? `<p>GST: ${invoiceData.fromGst}</p>` : ''}
-              ${invoiceData.fromContact ? `<p>Contact: ${invoiceData.fromContact}</p>` : ''}
-              <p><b>BILL TO:</b> ${invoiceData.to}</p>
-              ${invoiceData.toGst ? `<p>GST: ${invoiceData.toGst}</p>` : ''}
-              <p>Invoice Date: ${invoiceData.date} | Due Date: ${invoiceData.dueDate}</p>
-              <table border="1" style="width:100%; border-collapse:collapse;">
-                <tr style="background:#f0f0f0;">
-                  <th style="padding:8px;">Description</th><th style="padding:8px;">Qty</th>
-                  <th style="padding:8px;">Rate</th><th style="padding:8px;">Amount</th>
-                </tr>
-                ${invoiceData.items.map(item => {
-                  const amount = (parseFloat(item.qty) || 0) * (parseFloat(item.rate) || 0);
-                  return `<tr><td style="padding:8px;">${item.desc}</td><td style="padding:8px;">${item.qty}</td>
-                    <td style="padding:8px;">${invoiceData.currency}${parseFloat(item.rate).toLocaleString('en-IN')}</td>
-                    <td style="padding:8px;">${invoiceData.currency}${amount.toLocaleString('en-IN')}</td></tr>`;
-                }).join('')}
-              </table>
-              <p><b>Subtotal:</b> ${invoiceData.currency}${invoiceData.subtotal.toLocaleString('en-IN')}</p>
-              ${invoiceData.gstRate > 0 ? `<p><b>GST (${invoiceData.gstRate}%):</b> ${invoiceData.currency}${invoiceData.gstAmount.toLocaleString('en-IN')}</p>` : ''}
-              <p><b>Total:</b> ${invoiceData.currency}${invoiceData.total.toLocaleString('en-IN')}</p>
-              ${invoiceData.notes ? `<p><b>Notes:</b><br>${invoiceData.notes.replace(/\n/g, '<br>')}</p>` : ''}
-            </body>
-            </html>
-          `;
-          
-          const blob = new Blob([html], { type: 'application/msword' });
-          const link = document.createElement('a');
-          link.href = URL.createObjectURL(blob);
-          link.download = `invoice-${invoiceData.invoiceNum}.doc`;
-          link.click();
-          setTimeout(() => resolve(), 300);
-        } catch (error) {
-          reject(error);
-        }
-      });
+
+function showFeedback(message, type) {
+  const feedback = document.getElementById('feedback');
+  if (!feedback) return;
+  feedback.textContent = message;
+  feedback.className = `feedback show ${type}`;
+  setTimeout(() => feedback.classList.remove('show'), 3000);
+}
+
+// ── PDF Download (using jsPDF directly - no html2pdf) ──
+async function downloadAsPDF() {
+  const d = invoiceData;
+  const cur = d.currency || '₹';
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
+  const green = [116, 183, 46];
+  const dark  = [20, 20, 20];
+  const white = [255, 255, 255];
+  const gray  = [245, 245, 245];
+  const textGray = [80, 80, 80];
+
+  const L = 15, R = 195, W = R - L;
+  let y = 15;
+
+  // Header bar
+  doc.setFillColor(...dark);
+  doc.rect(L, y, W, 16, 'F');
+  doc.setTextColor(...green);
+  doc.setFontSize(22);
+  doc.setFont('helvetica', 'bold');
+  doc.text('INVOICE', L + 5, y + 11);
+  doc.setTextColor(...gray);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`#${d.invoiceNum}`, R - 5, y + 11, { align: 'right' });
+  y += 24;
+
+  // From / Bill To / Dates row
+  doc.setTextColor(...green);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.text('FROM', L, y);
+  doc.text('BILL TO', 85, y);
+  doc.text('DATES', 155, y);
+  y += 5;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(...dark);
+  doc.text(d.from || '', L, y);
+  doc.text(d.to || '', 85, y);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(...textGray);
+  doc.text(`Invoice: ${d.date}`, 155, y);
+  y += 5;
+
+  doc.setFontSize(8.5);
+  if (d.fromContact) doc.text(d.fromContact, L, y);
+  if (d.toGst) doc.text(`GST: ${d.toGst}`, 85, y);
+  doc.text(`Due: ${d.dueDate}`, 155, y);
+  y += 5;
+
+  if (d.fromGst) {
+    doc.setFontSize(8.5);
+    doc.text(`GST: ${d.fromGst}`, L, y);
+  }
+  y += 12;
+
+  // Divider
+  doc.setDrawColor(...green);
+  doc.setLineWidth(0.5);
+  doc.line(L, y, R, y);
+  y += 8;
+
+  // Table header
+  doc.setFillColor(...green);
+  doc.rect(L, y, W, 9, 'F');
+  doc.setTextColor(...white);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('Description', L + 3, y + 6);
+  doc.text('Qty', 135, y + 6, { align: 'center' });
+  doc.text('Rate', 162, y + 6, { align: 'right' });
+  doc.text('Amount', R - 3, y + 6, { align: 'right' });
+  y += 11;
+
+  // Items
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  d.items.forEach((item, i) => {
+    const qty = parseFloat(item.qty) || 0;
+    const rate = parseFloat(item.rate) || 0;
+    const amount = qty * rate;
+    if (i % 2 === 0) {
+      doc.setFillColor(...gray);
+      doc.rect(L, y - 5, W, 8, 'F');
     }
-
-        function downloadAsWord() {
-          return new Promise((resolve) => {
-
-            const styles = `
-            <style>
-              body{
-                font-family: Arial, sans-serif;
-                background: transparent;
-                color: inherit;
-                padding: 20px;
-              }
-
-              .invoice-card{
-                background: transparent;
-                border: 1px solid #4f4f4f;
-                border-radius: 16px;
-                padding: 32px;
-              }
-
-              .invoice-header{
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 24px;
-                padding-bottom: 16px;
-                border-bottom: 2px solid #4f4f4f;
-              }
-
-              .invoice-title{
-                color: #74B72E;
-                font-size: 32px;
-                font-weight: bold;
-              }
-
-              .invoice-num{
-                color: inherit;
-              }
-
-              .section-label{
-                color: #74B72E;
-                font-weight: bold;
-                margin-bottom: 8px;
-                text-transform: uppercase;
-              }
-
-              .section-content{
-                color: inherit;
-                line-height: 1.6;
-              }
-
-              table{
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 20px;
-              }
-
-              th{
-                border: 1px solid #4f4f4f;
-                padding: 10px;
-                text-align: left;
-                color: #74B72E;
-              }
-
-              td{
-                border: 1px solid #4f4f4f;
-                padding: 10px;
-                color: inherit;
-              }
-
-              .total-row{
-                font-weight: bold;
-              }
-
-              strong{
-                color: inherit;
-              }
-            </style>
-            `;
-
-            const html = `
-              <html>
-              <head>
-                <meta charset="utf-8">
-                ${styles}
-              </head>
-              <body>
-                ${document.getElementById('invoiceContent').outerHTML}
-              </body>
-              </html>
-            `;
-
-            const blob = new Blob(
-              [html],
-              { type: 'application/msword' }
-            );
-
-            const link = document.createElement('a');
-
-            link.href = URL.createObjectURL(blob);
-
-            link.download =
-              `invoice-${invoiceData.invoiceNum}.doc`;
-
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            resolve();
-          });
-        }
-
-        function downloadAsExcel() {
-          return new Promise((resolve, reject) => {
-
-            if (typeof XLSX === 'undefined') {
-              alert('XLSX library failed to load');
-              reject('XLSX missing');
-              return;
-            }
-
-            try {
-
-              const gstLabel =
-                invoiceData.gstRate > 0
-                  ? `GST (${invoiceData.gstRate}%)`
-                  : 'GST Exempted';
-
-              const data = [];
-
-              data.push([`INVOICE #${invoiceData.invoiceNum}`]);
-              data.push([]);
-
-              data.push(['FROM']);
-              data.push([invoiceData.from || '']);
-
-              if (invoiceData.fromContact) {
-                data.push([`Contact: ${invoiceData.fromContact}`]);
-              }
-
-              if (invoiceData.fromGst) {
-                data.push([`GST: ${invoiceData.fromGst}`]);
-              }
-
-              data.push([]);
-
-              data.push(['BILL TO']);
-              data.push([invoiceData.to || '']);
-
-              if (invoiceData.toGst) {
-                data.push([`GST: ${invoiceData.toGst}`]);
-              }
-
-              data.push([]);
-
-              data.push(['Invoice Date', invoiceData.date]);
-              data.push(['Due Date', invoiceData.dueDate]);
-
-              data.push([]);
-              data.push(['ITEMS']);
-              data.push(['Description', 'Qty', 'Rate', 'Amount']);
-
-              invoiceData.items.forEach(item => {
-
-                const qty = parseFloat(item.qty) || 0;
-                const rate = parseFloat(item.rate) || 0;
-
-                data.push([
-                  item.desc || '',
-                  qty,
-                  rate,
-                  qty * rate
-                ]);
-              });
-
-              data.push([]);
-
-              data.push([
-                'Subtotal',
-                '',
-                '',
-                invoiceData.subtotal
-              ]);
-
-              if (invoiceData.gstRate > 0) {
-                data.push([
-                  gstLabel,
-                  '',
-                  '',
-                  invoiceData.gstAmount
-                ]);
-              }
-
-              data.push([
-                'TOTAL AMOUNT DUE',
-                '',
-                '',
-                invoiceData.total
-              ]);
-
-              if (invoiceData.notes) {
-                data.push([]);
-                data.push(['NOTES']);
-                data.push([invoiceData.notes]);
-              }
-
-              const ws = XLSX.utils.aoa_to_sheet(data);
-
-              ws['!cols'] = [
-                { wch: 45 },
-                { wch: 12 },
-                { wch: 18 },
-                { wch: 18 }
-              ];
-
-              ws['!merges'] = [
-                {
-                  s: { r: 0, c: 0 },
-                  e: { r: 0, c: 3 }
-                }
-              ];
-
-              const wb = XLSX.utils.book_new();
-
-              XLSX.utils.book_append_sheet(
-                wb,
-                ws,
-                'Invoice'
-              );
-
-              XLSX.writeFile(
-                wb,
-                `invoice-${invoiceData.invoiceNum}.xlsx`
-              );
-
-              resolve();
-
-            } catch (error) {
-              console.error(error);
-              reject(error);
-            }
-          });
-        }
-
-        async function downloadAsPNG() {
-
-          try {
-
-            const invoice =
-              document.getElementById('invoiceContent');
-
-            const canvas =
-              await html2canvas(invoice, {
-                scale: 3,
-                useCORS: true,
-                backgroundColor: null
-              });
-
-            const link =
-              document.createElement('a');
-
-            link.download =
-              `invoice-${invoiceData.invoiceNum}.png`;
-
-            link.href =
-              canvas.toDataURL('image/png');
-
-            link.click();
-
-          } catch (error) {
-
-            console.error(error);
-
-            alert(
-              'Failed to download PNG'
-            );
-          }
-        }
-
-    function downloadAsText() {
-      return new Promise((resolve, reject) => {
-        try {
-          const gstLabel = invoiceData.gstRate === 18 ? 'GST (18%)' : invoiceData.gstRate === 6 ? 'GST (6%)' : invoiceData.gstRate === 0 ? 'GST Exempted' : `GST (${invoiceData.gstRate}%)`;
-          
-          let text = `${'='.repeat(60)}\n`;
-          text += `INVOICE #${invoiceData.invoiceNum}\n`;
-          text += `${'='.repeat(60)}\n\n`;
-          text += `FROM:\n${invoiceData.from}\n`;
-          if (invoiceData.fromGst) text += `GST: ${invoiceData.fromGst}\n`;
-          if (invoiceData.fromContact) text += `Contact: ${invoiceData.fromContact}\n`;
-          text += `\nBILL TO:\n${invoiceData.to}\n`;
-          if (invoiceData.toGst) text += `GST: ${invoiceData.toGst}\n`;
-          text += `\nInvoice Date: ${invoiceData.date}\n`;
-          text += `Due Date: ${invoiceData.dueDate}\n`;
-          text += `${'='.repeat(60)}\n\n`;
-          text += `${'Description'.padEnd(30)} ${'Qty'.padEnd(6)} ${'Rate'.padEnd(12)} Amount\n`;
-          text += `${'-'.repeat(60)}\n`;
-          invoiceData.items.forEach(item => {
-            const amount = (parseFloat(item.qty) || 0) * (parseFloat(item.rate) || 0);
-            const desc = (item.desc || '').substring(0, 29).padEnd(30);
-            const qty = (item.qty || 0).toString().padEnd(6);
-            const rate = `${invoiceData.currency}${item.rate || 0}`.padEnd(12);
-            text += `${desc} ${qty} ${rate} ${invoiceData.currency}${amount.toLocaleString('en-IN')}\n`;
-          });
-          text += `${'-'.repeat(60)}\n`;
-          text += `Subtotal: ${invoiceData.currency}${invoiceData.subtotal.toLocaleString('en-IN')}\n`;
-          if (invoiceData.gstRate > 0) text += `${gstLabel}: ${invoiceData.currency}${invoiceData.gstAmount.toLocaleString('en-IN')}\n`;
-          text += `Total Due: ${invoiceData.currency}${invoiceData.total.toLocaleString('en-IN')}\n`;
-          if (invoiceData.notes) text += `\nNotes:\n${invoiceData.notes}\n`;
-
-          downloadFile(text, `invoice-${invoiceData.invoiceNum}.txt`, 'text/plain');
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
+    doc.setTextColor(...dark);
+    doc.text(String(item.desc || ''), L + 3, y);
+    doc.text(String(qty), 135, y, { align: 'center' });
+    doc.setTextColor(...textGray);
+    doc.text(`${cur}${rate.toLocaleString('en-IN')}`, 162, y, { align: 'right' });
+    doc.setTextColor(...dark);
+    doc.text(`${cur}${amount.toLocaleString('en-IN')}`, R - 3, y, { align: 'right' });
+    y += 8;
+  });
+
+  y += 4;
+  doc.setDrawColor(220, 220, 220);
+  doc.line(L, y, R, y);
+  y += 6;
+
+  // Subtotal
+  doc.setTextColor(...textGray);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text('Subtotal', R - 40, y);
+  doc.setTextColor(...dark);
+  doc.text(`${cur}${d.subtotal.toLocaleString('en-IN')}`, R - 3, y, { align: 'right' });
+  y += 7;
+
+  // GST
+  if (d.gstRate > 0) {
+    doc.setTextColor(...textGray);
+    doc.text(`GST (${d.gstRate}%)`, R - 40, y);
+    doc.setTextColor(...dark);
+    doc.text(`${cur}${d.gstAmount.toLocaleString('en-IN')}`, R - 3, y, { align: 'right' });
+    y += 7;
+  }
+
+  // Total bar
+  doc.setFillColor(...green);
+  doc.rect(L, y - 4, W, 10, 'F');
+  doc.setTextColor(...white);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.text('TOTAL AMOUNT DUE', R - 45, y + 3);
+  doc.text(`${cur}${d.total.toLocaleString('en-IN')}`, R - 3, y + 3, { align: 'right' });
+  y += 16;
+
+  // Notes
+  if (d.notes) {
+    doc.setFillColor(240, 248, 232);
+    const noteLines = doc.splitTextToSize(d.notes, W - 10);
+    const noteH = noteLines.length * 5 + 10;
+    doc.rect(L, y, W, noteH, 'F');
+    doc.setTextColor(...green);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.text('NOTES', L + 4, y + 6);
+    doc.setTextColor(...dark);
+    doc.setFont('helvetica', 'normal');
+    doc.text(noteLines, L + 4, y + 12);
+  }
+
+  doc.save(`invoice-${d.invoiceNum}.pdf`);
+}
+
+// ── Word Download ──
+function downloadAsWord() {
+  return new Promise((resolve) => {
+    const d = invoiceData;
+    const cur = d.currency || '₹';
+    const html = `<html><head><meta charset="utf-8"><style>
+      body{font-family:Arial,sans-serif;padding:30px;color:#222;}
+      h1{color:#74B72E;} table{width:100%;border-collapse:collapse;margin-top:16px;}
+      th{background:#74B72E;color:#fff;padding:8px;text-align:left;}
+      td{border:1px solid #ddd;padding:8px;}
+      .label{color:#74B72E;font-weight:bold;margin-top:12px;}
+    </style></head><body>
+      <h1>INVOICE #${d.invoiceNum}</h1>
+      <p class="label">FROM</p><p><b>${d.from}</b>${d.fromContact?'<br>'+d.fromContact:''}${d.fromGst?'<br>GST: '+d.fromGst:''}</p>
+      <p class="label">BILL TO</p><p><b>${d.to}</b>${d.toGst?'<br>GST: '+d.toGst:''}</p>
+      <p>Invoice Date: ${d.date} &nbsp;|&nbsp; Due Date: ${d.dueDate}</p>
+      <table><thead><tr><th>Description</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead><tbody>
+      ${d.items.map(item=>{const a=(+item.qty||0)*(+item.rate||0);return`<tr><td>${item.desc||''}</td><td>${item.qty}</td><td>${cur}${(+item.rate||0).toLocaleString('en-IN')}</td><td>${cur}${a.toLocaleString('en-IN')}</td></tr>`;}).join('')}
+      <tr><td colspan="3" style="text-align:right"><b>Subtotal</b></td><td>${cur}${d.subtotal.toLocaleString('en-IN')}</td></tr>
+      ${d.gstRate>0?`<tr><td colspan="3" style="text-align:right"><b>GST (${d.gstRate}%)</b></td><td>${cur}${d.gstAmount.toLocaleString('en-IN')}</td></tr>`:''}
+      <tr style="background:#74B72E;color:#fff"><td colspan="3" style="text-align:right"><b>TOTAL</b></td><td><b>${cur}${d.total.toLocaleString('en-IN')}</b></td></tr>
+      </tbody></table>
+      ${d.notes?`<p class="label">NOTES</p><p>${d.notes.replace(/\n/g,'<br>')}</p>`:''}
+    </body></html>`;
+    const blob = new Blob([html], { type: 'application/msword' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `invoice-${d.invoiceNum}.doc`;
+    a.click();
+    resolve();
+  });
+}
+
+// ── Excel Download ──
+function downloadAsExcel() {
+  return new Promise((resolve, reject) => {
+    if (typeof XLSX === 'undefined') { reject('XLSX missing'); return; }
+    const d = invoiceData;
+    const data = [
+      [`INVOICE #${d.invoiceNum}`], [],
+      ['FROM', d.from], d.fromContact?['Contact', d.fromContact]:null,
+      d.fromGst?['GST', d.fromGst]:null, [],
+      ['BILL TO', d.to], d.toGst?['GST', d.toGst]:null, [],
+      ['Invoice Date', d.date], ['Due Date', d.dueDate], [],
+      ['Description', 'Qty', 'Rate', 'Amount'],
+      ...d.items.map(item => {
+        const a = (+item.qty||0)*(+item.rate||0);
+        return [item.desc||'', +item.qty||0, +item.rate||0, a];
+      }),
+      [], ['Subtotal', '', '', d.subtotal],
+      d.gstRate>0 ? [`GST (${d.gstRate}%)`, '', '', d.gstAmount] : null,
+      ['TOTAL AMOUNT DUE', '', '', d.total],
+      d.notes ? [] : null, d.notes ? ['Notes', d.notes] : null
+    ].filter(Boolean);
+
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    ws['!cols'] = [{wch:40},{wch:10},{wch:15},{wch:15}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Invoice');
+    XLSX.writeFile(wb, `invoice-${d.invoiceNum}.xlsx`);
+    resolve();
+  });
+}
+
+// ── Text Download ──
+function downloadAsText() {
+  return new Promise((resolve, reject) => {
+    try {
+      const d = invoiceData;
+      const cur = d.currency || '₹';
+      let t = `${'='.repeat(55)}\nINVOICE #${d.invoiceNum}\n${'='.repeat(55)}\n\n`;
+      t += `FROM: ${d.from}\n`;
+      if (d.fromContact) t += `Contact: ${d.fromContact}\n`;
+      if (d.fromGst) t += `GST: ${d.fromGst}\n`;
+      t += `\nBILL TO: ${d.to}\n`;
+      if (d.toGst) t += `GST: ${d.toGst}\n`;
+      t += `\nInvoice Date: ${d.date}\nDue Date: ${d.dueDate}\n\n`;
+      t += `${'─'.repeat(55)}\n`;
+      t += `${'Description'.padEnd(28)} ${'Qty'.padEnd(5)} ${'Rate'.padEnd(10)} Amount\n`;
+      t += `${'─'.repeat(55)}\n`;
+      d.items.forEach(item => {
+        const a = (+item.qty||0)*(+item.rate||0);
+        t += `${(item.desc||'').substring(0,27).padEnd(28)} ${String(item.qty).padEnd(5)} ${(cur+(+item.rate||0)).padEnd(10)} ${cur}${a.toLocaleString('en-IN')}\n`;
       });
-    }
+      t += `${'─'.repeat(55)}\nSubtotal: ${cur}${d.subtotal.toLocaleString('en-IN')}\n`;
+      if (d.gstRate > 0) t += `GST (${d.gstRate}%): ${cur}${d.gstAmount.toLocaleString('en-IN')}\n`;
+      t += `TOTAL: ${cur}${d.total.toLocaleString('en-IN')}\n`;
+      if (d.notes) t += `\nNotes:\n${d.notes}\n`;
+
+      const blob = new Blob([t], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `invoice-${d.invoiceNum}.txt`;
+      a.click();
+      resolve();
+    } catch(e) { reject(e); }
+  });
+}
+
+// ── PNG Download ──
+async function downloadAsPNG() {
+  try {
+    const canvas = await html2canvas(document.getElementById('invoiceContent'), {
+      scale: 3, useCORS: true, backgroundColor: '#1a1a1a'
+    });
+    const a = document.createElement('a');
+    a.download = `invoice-${invoiceData.invoiceNum}.png`;
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  } catch(e) { alert('PNG download failed'); }
+}
+
+// ── Init ──
+loadInvoiceData();
