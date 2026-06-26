@@ -282,7 +282,7 @@ async function downloadAsPDF() {
     window.scrollTo(0, 0);
 
     const canvas = await html2canvas(element, {
-        scale: 3,
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#101010",
@@ -315,7 +315,7 @@ async function downloadAsPDF() {
     heightLeft -= pageHeight;
 
     while (heightLeft > 0) {
-        position = heightLeft - imgHeight + 0.2;
+        position = heightLeft - imgHeight;
         pdf.addPage();
         pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
