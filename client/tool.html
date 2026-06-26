@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RupBill — Create Invoice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+ <link rel="stylesheet" href="css/tool.css">
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="logo">
+      <img src="images/logo.png" alt="RupBill" />
+      <span class="logo-text">Rup<span>Bill</span></span>
+    </a>
+    <a href="index.html" class="back-btn">← Back to Home</a>
+  </nav>
+
+  <div class="page">
+
+    <!-- ── LEFT: FORM ── -->
+    <div class="form-panel">
+      <div class="panel-title">Your Details</div>
+
+      <div class="form-group">
+        <label>Your Name / Business Name</label>
+        <input type="text" id="from-name" placeholder="e.g. Arjun Sharma" oninput="updatePreview()" />
+      </div>
+      <div class="form-group">
+        <label>Your GST Number (optional)</label>
+        <input type="text" id="from-gst" placeholder="e.g. 27AABCU9603R1ZX" oninput="updatePreview()" />
+      </div>
+      <div class="form-group">
+        <label>Your Email / Phone (optional)</label>
+        <input type="text" id="from-contact" placeholder="e.g. arjun@email.com | +91 98765 43210" oninput="updatePreview()" />
+      </div>
+
+      <hr class="section-divider" />
+      <div class="section-sub">Client Details</div>
+
+      <div class="form-group">
+        <label>Client Name / Company</label>
+        <input type="text" id="to-name" placeholder="e.g. Zara Tech Pvt. Ltd." oninput="updatePreview()" />
+      </div>
+      <div class="form-group">
+        <label>Client GST / PAN (optional)</label>
+        <input type="text" id="to-gst" placeholder="e.g. 22AAAAA0000A1Z5" oninput="updatePreview()" />
+      </div>
+
+      <hr class="section-divider" />
+      <div class="section-sub">Invoice Info</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Invoice Number</label>
+          <input type="text" id="inv-num" value="INV-001" oninput="updatePreview()" />
+        </div>
+        <div class="form-group">
+          <label>Invoice Date</label>
+          <input type="date" id="inv-date" oninput="updatePreview()" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Due Date</label>
+          <input type="date" id="due-date" oninput="updatePreview()" />
+        </div>
+        <div class="form-group">
+          <label>Currency</label>
+          <select id="currency" onchange="updatePreview()">
+            <option value="₹">₹ Indian Rupee</option>
+            <option value="$">$ US Dollar</option>
+            <option value="€">€ Euro</option>
+            <option value="£">£ British Pound</option>
+          </select>
+        </div>
+      </div>
+
+      <hr class="section-divider" />
+      <div class="section-sub">Services / Items</div>
+
+      <div class="items-header">
+        <span>Description</span><span>Qty</span><span>Rate</span><span>Amount</span><span></span>
+      </div>
+      <div id="items-list"></div>
+      <button class="add-item-btn" onclick="addItem()">+ Add Item</button>
+
+      <hr class="section-divider" />
+      <div class="section-sub">Tax & Notes</div>
+
+      <!-- GST Selection Block -->
+      <div class="gst-block">
+        <div class="gst-block-title">📊 GST Selection</div>
+        <div class="gst-options">
+          <div class="gst-option">
+            <input type="radio" id="gst-18" name="gst-type" value="18" checked onchange="updatePreview()" />
+            <label for="gst-18" class="gst-option-label">
+              <strong>Standard GST (18%)</strong>
+            </label>
+          </div>
+          <div class="gst-option-desc">
+            ✓ For turnover ≥ ₹50 lakhs | ✓ Full tax invoice | ✓ Input Tax Credit eligible
+          </div>
+
+          <div class="gst-option">
+            <input type="radio" id="gst-6" name="gst-type" value="6" onchange="updatePreview()" />
+            <label for="gst-6" class="gst-option-label">
+              <strong>Composition Scheme (6%)</strong>
+            </label>
+          </div>
+          <div class="gst-option-desc">
+            ✓ For turnover &lt; ₹50 lakhs | ⚠ Simplified invoice | ⚠ No Input Tax Credit
+          </div>
+
+          <div class="gst-option">
+            <input type="radio" id="gst-none" name="gst-type" value="0" onchange="updatePreview()" />
+            <label for="gst-none" class="gst-option-label">
+              <strong>No GST</strong>
+            </label>
+          </div>
+          <div class="gst-option-desc">
+            ✓ Below turnover threshold | ✓ Non-taxable services | ✓ Exempted category
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Notes / Payment Instructions (optional)</label>
+        <textarea id="notes" placeholder="e.g. Please pay within 15 days via UPI / Bank Transfer&#10;UPI: arjun@upi" oninput="updatePreview()"></textarea>
+          <small class="field-note">
+              If left blank, a default payment note will be added to the invoice:
+              "Please pay within 15 days via bank transfer or UPI. Contact us for payment details."
+          </small>
+      </div>
+
+      <button class="download-btn" onclick="saveAndRedirect()" style="display: flex; align-items: center; justify-content: center; cursor: pointer;">
+        ⬇ Download Invoice (Multiple Formats)
+      </button>
+    </div>
+
+    <!-- ── RIGHT: PREVIEW ── -->
+    <div class="preview-panel">
+      <div class="panel-title" style="color:var(--muted);font-size:0.78rem;margin-bottom:12px;">LIVE PREVIEW</div>
+      <div class="preview-box" id="invoice-preview">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- jsPDF for PDF download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <script src="js/config.js"></script>
+  <script src="js/tool.js"></script>
+  
+</body>
+</html>

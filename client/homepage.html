@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RupBill — Invoice Generator for Indian Freelancers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+   <link rel="stylesheet" href="css/homepage.css">
+   
+</head>
+<body>
+
+  <nav>
+    <a href="#" class="logo">
+        <img src="images/logo.png" alt="RupBill Logo">
+        <span class="logo-text">Rup<span>Bill</span></span>
+    </a>
+    <a href="#tool" class="nav-btn">Create Invoice →</a>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-left" id="p-text">
+      <span class="hero-tag">🇮🇳 Made for Indian Freelancers</span>
+      <h1>Create GST Invoices in <span class="highlight">under 2 minutes</span></h1>
+      <p>No signup. No confusion. Fill your details, preview your invoice, and download a clean PDF — with GST, PAN, and ₹ built right in.</p>
+      <div class="hero-actions">
+        <a href="#tool" class="btn-primary">Generate Free Invoice →</a>
+        <a href="#how" class="btn-ghost">See how it works</a>
+      </div>
+    </div>
+    <div class="preview-card" id="p-card">
+      <div class="preview-header">
+        <div><div class="preview-title">INVOICE</div><p style="font-size:0.78rem;color:var(--muted);margin-top:4px;">#INV-0042</p></div>
+        <div class="preview-meta"><p>Date</p><strong>19 Jun 2026</strong><p style="margin-top:6px;">Due Date</p><strong>03 Jul 2026</strong></div>
+      </div>
+      <div class="preview-from">
+        <p>From</p><strong>Arjun Sharma — UI Designer</strong>
+        <p style="font-size:0.78rem;color:var(--muted);">GST: 27AABCU9603R1ZX</p>
+      </div>
+      <table class="preview-table">
+        <thead><tr><th>Service</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr><td>Logo Design</td><td>1</td><td>₹8,000</td><td>₹8,000</td></tr>
+          <tr><td>Brand Guidelines</td><td>1</td><td>₹4,500</td><td>₹4,500</td></tr>
+        </tbody>
+      </table>
+      <div class="preview-total"><span>Total Amount Due</span><strong>₹14,751</strong></div>
+      <p class="preview-gst">Includes 18% GST (₹2,251)</p>
+    </div>
+  </section>
+
+  <div class="stats" id="p-stats">
+    <div class="stat fade-in"><div class="stat-number">100%</div><div class="stat-label">Free to use</div></div>
+    <div class="stat fade-in"><div class="stat-number">2 min</div><div class="stat-label">To create an invoice</div></div>
+    <div class="stat fade-in"><div class="stat-number">GST</div><div class="stat-label">Auto calculated</div></div>
+    <div class="stat fade-in"><div class="stat-number">PDF</div><div class="stat-label">Instant download</div></div>
+  </div>
+
+  <section class="section" id="p-how">
+    <div class="section-label fade-in">How it works</div>
+    <div class="section-title fade-in">3 steps to get paid</div>
+    <div class="steps">
+      <div class="step fade-in" id="step-1"><div class="step-num">1</div><h3>Fill your details</h3><p>Enter your name, client name, services, and amount. GST is calculated automatically.</p></div>
+      <div class="step fade-in" id="step-2"><div class="step-num">2</div><h3>Preview your invoice</h3><p>See exactly how your invoice looks before sending. Clean, professional, and ready.</p></div>
+      <div class="step fade-in" id="step-3"><div class="step-num">3</div><h3>Download as PDF</h3><p>One click download. Send it to your client by email or WhatsApp instantly.</p></div>
+    </div>
+  </section>
+
+  <section class="features-section" id="p-features">
+    <div class="section-label fade-in">Features</div>
+    <div class="section-title fade-in" style="margin-bottom:32px;">Everything a freelancer needs</div>
+    <div class="features-grid">
+      <div class="feature fade-in"><div class="feature-icon">₹</div><h4>Indian Rupee by default</h4><p>No need to change currency settings. Built for India from day one.</p></div>
+      <div class="feature fade-in"><div class="feature-icon">🧾</div><h4>GST auto-calculation</h4><p>Enter your amount, we handle 18% GST math automatically.</p></div>
+      <div class="feature fade-in"><div class="feature-icon">📄</div><h4>PDF download</h4><p>Download a clean, print-ready PDF in one click. No watermarks.</p></div>
+      <div class="feature fade-in"><div class="feature-icon">🔒</div><h4>No signup needed</h4><p>Open the tool, fill it, download it. Your data never leaves your browser.</p></div>
+      <div class="feature fade-in"><div class="feature-icon">📱</div><h4>Works on mobile</h4><p>Create invoices from your phone on the go. Fully responsive design.</p></div>
+      <div class="feature fade-in"><div class="feature-icon">⚡</div><h4>Instant &amp; free</h4><p>No hidden charges. No subscriptions. Just create and download.</p></div>
+    </div>
+  </section>
+
+  <div class="cta-banner fade-in" id="tool">
+    <h2>Ready to create your first invoice?</h2>
+    <p>Join thousands of Indian freelancers who bill smarter with RupBill.</p>
+    <a href="tool.html" class="btn-primary">Generate Free Invoice →</a>
+  </div>
+
+  <footer>
+    <div class="footer-logo"><img src="images/logo.png" alt="RupBill Logo">
+      Rup<span style="color:var(--accent)">Bill</span></div>
+    <p>© 2026 RupBill. Free invoice generator for Indian freelancers.</p>
+    <div class="footer-links">
+      <a href="#">About</a><a href="#">Privacy</a><a href="#">Contact</a>
+    </div>
+  </footer>
+  <script src="js/config.js"></script>
+  <script src="js/homepage.js"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Invoice Multi-Format Downloader</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.14.0/docx.min.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <link rel="stylesheet" href="css/invoice-downloader.css">
+</head>
+<body>
+  <div class="container">
+    <h1>📄 Invoice Downloader</h1>
+    <p class="subtitle">Download your invoice in multiple formats - PDF, Word, Excel, CSV, and Text</p>
+
+    <div class="main-grid">
+      <!-- Invoice Preview -->
+      <div class="invoice-card" id="invoiceContent">
+        <div class="invoice-header">
+          <div class="invoice-title">INVOICE</div>
+          <div class="invoice-num">#INV-001</div>
+        </div>
+
+        <div class="invoice-section">
+          <div class="section-label">From</div>
+          <div class="section-content">
+            <strong>Your Business Name</strong><br>
+            Email: business@example.com<br>
+            Phone: +91 98765 43210<br>
+            GST: 27AABCU9603R1ZX
+          </div>
+        </div>
+
+        <div class="invoice-section">
+          <div class="section-label">Bill To</div>
+          <div class="section-content">
+            <strong>Client Name</strong><br>
+            Email: client@example.com<br>
+            Address: Mumbai, India<br>
+            GST: 22AAAAA0000A1Z5
+          </div>
+        </div>
+
+        <div class="invoice-section">
+          <div class="section-label">Invoice Details</div>
+          <div class="section-content">
+            Invoice Date: <strong id="invDate"></strong><br>
+            Due Date: <strong id="dueDate"></strong><br>
+            Currency: <strong>INR (₹)</strong>
+          </div>
+        </div>
+
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Qty</th>
+              <th>Rate</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Web Development</td>
+              <td>1</td>
+              <td>₹10,000</td>
+              <td>₹10,000</td>
+            </tr>
+            <tr>
+              <td>UI/UX Design</td>
+              <td>1</td>
+              <td>₹5,000</td>
+              <td>₹5,000</td>
+            </tr>
+            <tr>
+              <td>Hosting Setup</td>
+              <td>1</td>
+              <td>₹2,000</td>
+              <td>₹2,000</td>
+            </tr>
+            <tr class="total-row">
+              <td colspan="3" style="text-align: right;">Subtotal</td>
+              <td>₹17,000</td>
+            </tr>
+            <tr class="total-row">
+              <td colspan="3" style="text-align: right;">GST (18%)</td>
+              <td>₹3,060</td>
+            </tr>
+            <tr class="total-row" style="border-bottom: 2px solid #74B72E;">
+              <td colspan="3" style="text-align: right;">Total Amount Due</td>
+              <td>₹20,060</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="invoice-section" style="margin-top: 20px;">
+          <div class="section-label">Notes</div>
+          <div class="section-content">
+            Please pay within 15 days via bank transfer or UPI. Contact us for payment details.
+          </div>
+        </div>
+      </div>
+
+      <!-- Download Options -->
+      <div class="download-card">
+        <div class="download-title">
+          <span class="btn-icon">⬇️</span>
+          Download Options
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="button-group">
+          <button class="download-btn" id="pdfBtn" data-format="pdf">
+            <span class="btn-icon">📕</span>
+            <span>Download as PDF</span>
+          </button>
+
+          <button class="download-btn" id="wordBtn" data-format="word">
+            <span class="btn-icon">📘</span>
+            <span>Download as Word</span>
+          </button>
+
+          <button class="download-btn" id="excelBtn" data-format="excel">
+            <span class="btn-icon">📗</span>
+            <span>Download as Excel</span>
+          </button>
+
+          <button class="download-btn" id="pngBtn" data-format="png" onclick="downloadAsPNG()">
+            <span class="btn-icon">🖼️</span>
+            <span>Download as PNG</span>
+          </button>
+
+          <button class="download-btn" id="txtBtn" data-format="txt">
+            <span class="btn-icon">📄</span>
+            <span>Download as Text</span>
+          </button>
+        </div>
+
+        <div class="download-count">
+          Total Downloads: <strong id="counter">0</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Libraries for file generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.14.0/docx.min.js"></script>
+
+  
+  <script src="js/config.js"></script>
+  <script src="js/downloader.js"></script>
+</body>
+</html>

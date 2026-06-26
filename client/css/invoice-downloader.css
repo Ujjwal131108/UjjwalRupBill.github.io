@@ -1,0 +1,249 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1c1c1c 0%, #262626 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      color: #dedede;
+      font-size: 2rem;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: #696969;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 0.95rem;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+
+    /* ── INVOICE PREVIEW CARD ── */
+    .invoice-card {
+      background: #101010;
+      border: 1px solid #4f4f4f;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #4f4f4f;
+    }
+
+    .invoice-title {
+      font-family: 'Space Grotesk', sans-serif;
+      color: #74B72E;
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .invoice-num {
+      color: #696969;
+      font-size: 0.9rem;
+    }
+
+    .invoice-section {
+      margin-bottom: 20px;
+    }
+
+    .section-label {
+      font-family: 'Space Grotesk', sans-serif;
+      color: #74B72E;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .section-content {
+      color: #dedede;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .invoice-table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    .invoice-table th {
+      background: #262626;
+      color: #74B72E;
+      padding: 10px;
+      text-align: left;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid #4f4f4f;
+    }
+
+    .invoice-table td {
+      padding: 10px;
+      color: #dedede;
+      border: 1px solid #4f4f4f;
+      font-size: 0.9rem;
+    }
+
+    .total-row {
+      background: #262626;
+      font-weight: 600;
+      color: #74B72E;
+    }
+
+    /* ── DOWNLOAD OPTIONS CARD ── */
+    .download-card {
+      background: #101010;
+      border: 1px solid #4f4f4f;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .download-title {
+      font-family: 'Space Grotesk', sans-serif;
+      color: #dedede;
+      font-size: 1.3rem;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* ── DOWNLOAD BUTTONS ── */
+    .download-btn {
+      width: 100%;
+      padding: 16px 20px;
+      background: #74B72E;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .download-btn:hover:not(:disabled) {
+      background: #5f9c1f;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(116, 183, 46, 0.4);
+    }
+
+    .download-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .download-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .download-btn.loading {
+      background: #5f9c1f;
+    }
+
+    .download-btn.success {
+      background: #10b981;
+    }
+
+    .download-btn.error {
+      background: #ef4444;
+    }
+
+    /* ── SPINNER ── */
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .btn-icon {
+      font-size: 1.2rem;
+    }
+
+    /* ── FEEDBACK MESSAGE ── */
+    .feedback {
+      margin-bottom: 20px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    .feedback.success {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+      border: 1px solid #10b981;
+    }
+
+    .feedback.error {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border: 1px solid #ef4444;
+    }
+
+    .download-count {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid #4f4f4f;
+      text-align: center;
+      color: #696969;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
