@@ -1,6 +1,6 @@
     // Domain lock — breaks if run locally or on another domain
       (function() {
-        const allowed = ['UjjwalRupBill.github.io'];
+        const allowed = ['Ujjwal111308.github.io'];
         const host = window.location.hostname;
         if (!allowed.includes(host)) {
           document.body.innerHTML = '<h2 style="text-align:center;margin-top:20vh">This tool only works at rupbill.github.io</h2>';
