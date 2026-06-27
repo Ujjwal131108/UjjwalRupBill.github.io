@@ -176,6 +176,8 @@ function showFeedback(message, type) {
 async function downloadAsPDF() {
   const d = invoiceData;
   const cur = d.currency || '₹';
+  // jsPDF can't render ₹ — use Rs. as fallback
+  const sym = (cur === '₹' || cur === 'INR') ? 'Rs.' : cur;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
@@ -251,10 +253,11 @@ async function downloadAsPDF() {
   doc.text('Amount', R - 3, y + 6, { align: 'right' });
   y += 11;
 
-  // Items
+  // Items - skip empty rows
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
-  d.items.forEach((item, i) => {
+  const validItems = d.items.filter(item => item.desc || parseFloat(item.rate) > 0);
+  validItems.forEach((item, i) => {
     const qty = parseFloat(item.qty) || 0;
     const rate = parseFloat(item.rate) || 0;
     const amount = qty * rate;
@@ -266,9 +269,9 @@ async function downloadAsPDF() {
     doc.text(String(item.desc || ''), L + 3, y);
     doc.text(String(qty), 135, y, { align: 'center' });
     doc.setTextColor(...textGray);
-    doc.text(`${cur}${rate.toLocaleString('en-IN')}`, 162, y, { align: 'right' });
+    doc.text(sym + rate.toLocaleString('en-IN'), 162, y, { align: 'right' });
     doc.setTextColor(...dark);
-    doc.text(`${cur}${amount.toLocaleString('en-IN')}`, R - 3, y, { align: 'right' });
+    doc.text(sym + amount.toLocaleString('en-IN'), R - 3, y, { align: 'right' });
     y += 8;
   });
 
@@ -283,7 +286,7 @@ async function downloadAsPDF() {
   doc.setFontSize(9);
   doc.text('Subtotal', R - 40, y);
   doc.setTextColor(...dark);
-  doc.text(`${cur}${d.subtotal.toLocaleString('en-IN')}`, R - 3, y, { align: 'right' });
+  doc.text(sym + d.subtotal.toLocaleString('en-IN'), R - 3, y, { align: 'right' });
   y += 7;
 
   // GST
@@ -291,7 +294,7 @@ async function downloadAsPDF() {
     doc.setTextColor(...textGray);
     doc.text(`GST (${d.gstRate}%)`, R - 40, y);
     doc.setTextColor(...dark);
-    doc.text(`${cur}${d.gstAmount.toLocaleString('en-IN')}`, R - 3, y, { align: 'right' });
+    doc.text(sym + d.gstAmount.toLocaleString('en-IN'), R - 3, y, { align: 'right' });
     y += 7;
   }
 
