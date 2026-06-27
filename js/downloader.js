@@ -203,37 +203,63 @@ async function downloadAsPDF() {
   doc.text(`#${d.invoiceNum}`, R - 5, y + 11, { align: 'right' });
   y += 24;
 
-  // From / Bill To / Dates row
+  // Info box background
+  doc.setFillColor(245, 245, 245);
+  doc.rect(L, y, W, 38, 'F');
+
+  // FROM column (left)
   doc.setTextColor(...green);
-  doc.setFontSize(8);
+  doc.setFontSize(7.5);
   doc.setFont('helvetica', 'bold');
-  doc.text('FROM', L, y);
-  doc.text('BILL TO', 85, y);
-  doc.text('DATES', 155, y);
-  y += 5;
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
+  doc.text('FROM', L + 4, y + 7);
   doc.setTextColor(...dark);
-  doc.text(d.from || '', L, y);
-  doc.text(d.to || '', 85, y);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9.5);
+  const fromName = doc.splitTextToSize(d.from || '', 55);
+  doc.text(fromName, L + 4, y + 13);
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
+  doc.setFontSize(8);
   doc.setTextColor(...textGray);
-  doc.text(`Invoice: ${d.date}`, 155, y);
-  y += 5;
+  let fromY = y + 13 + (fromName.length * 5);
+  if (d.fromContact) { doc.text(d.fromContact, L + 4, fromY); fromY += 5; }
+  if (d.fromGst) { doc.text('GST: ' + d.fromGst, L + 4, fromY); }
 
+  // BILL TO column (middle)
+  const midX = L + (W / 3) + 4;
+  doc.setTextColor(...green);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  doc.text('BILL TO', midX, y + 7);
+  doc.setTextColor(...dark);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9.5);
+  const toName = doc.splitTextToSize(d.to || '', 55);
+  doc.text(toName, midX, y + 13);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(...textGray);
+  if (d.toGst) { doc.text('GST: ' + d.toGst, midX, y + 13 + (toName.length * 5)); }
+
+  // DATES column (right)
+  const rightX = L + (W * 2 / 3) + 4;
+  doc.setTextColor(...green);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  doc.text('DATES', rightX, y + 7);
+  doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
-  if (d.fromContact) doc.text(d.fromContact, L, y);
-  if (d.toGst) doc.text(`GST: ${d.toGst}`, 85, y);
-  doc.text(`Due: ${d.dueDate}`, 155, y);
-  y += 5;
+  doc.setTextColor(...dark);
+  doc.text('Invoice: ' + d.date, rightX, y + 13);
+  doc.setTextColor(...textGray);
+  doc.text('Due: ' + d.dueDate, rightX, y + 19);
 
-  if (d.fromGst) {
-    doc.setFontSize(8.5);
-    doc.text(`GST: ${d.fromGst}`, L, y);
-  }
-  y += 12;
+  // Divider lines between columns
+  doc.setDrawColor(220, 220, 220);
+  doc.setLineWidth(0.3);
+  doc.line(L + (W/3), y + 3, L + (W/3), y + 35);
+  doc.line(L + (W*2/3), y + 3, L + (W*2/3), y + 35);
+
+  y += 44;
 
   // Divider
   doc.setDrawColor(...green);
@@ -305,7 +331,7 @@ async function downloadAsPDF() {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   doc.text('TOTAL AMOUNT DUE', R - 45, y + 3);
-  doc.text(`${cur}${d.total.toLocaleString('en-IN')}`, R - 3, y + 3, { align: 'right' });
+  doc.text(sym + d.total.toLocaleString('en-IN'), R - 3, y + 3, { align: 'right' });
   y += 16;
 
   // Notes
