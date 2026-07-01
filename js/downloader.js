@@ -179,7 +179,10 @@ async function downloadAsPDF() {
   // jsPDF can't render ₹ — use Rs. as fallback
   const sym = (cur === '₹' || cur === 'INR') ? 'Rs.' : cur;
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  const itemCount = d.items.filter(item => item.desc || parseFloat(item.rate) > 0).length;
+const estimatedHeight = 100 + (itemCount * 8) + (d.notes ? 20 : 0) + (d.gstRate > 0 ? 7 : 0);
+const pageHeight = Math.max(estimatedHeight, 148); // minimum half A4
+const doc = new jsPDF({ unit: 'mm', format: [210, pageHeight], orientation: 'portrait' });
 
   const green = [116, 183, 46];
   const dark  = [20, 20, 20];
