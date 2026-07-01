@@ -190,7 +190,7 @@ async function downloadAsPDF() {
   const gray  = [245, 245, 245];
   const textGray = [80, 80, 80];
 
-  const L = 12, R = 198, W = R - L;
+  const L = 14, R = 190, W = R - L;
   let y = 15;
 
   // Header bar
@@ -262,8 +262,8 @@ async function downloadAsPDF() {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
   doc.text('Description', L + 3, y + 8);
-  doc.text('Qty', 135, y + 8, { align: 'center' });
-  doc.text('Rate', 162, y + 8, { align: 'right' });
+  doc.text('Qty', 130, y + 8, { align: 'center' });
+  doc.text('Rate', 158, y + 8, { align: 'right' });
   doc.text('Amount', R - 3, y + 8, { align: 'right' });
   y += 14;
 
@@ -281,9 +281,9 @@ async function downloadAsPDF() {
     }
     doc.setTextColor(...dark);
     doc.text(String(item.desc || ''), L + 3, y);
-    doc.text(String(qty), 135, y, { align: 'center' });
+    doc.text(String(qty), 130, y, { align: 'center' });
     doc.setTextColor(...textGray);
-    doc.text(sym + rate.toLocaleString('en-IN'), 162, y, { align: 'right' });
+    doc.text(sym + rate.toLocaleString('en-IN'), 158, y, { align: 'right' });
     doc.setTextColor(...dark);
     doc.text(sym + amount.toLocaleString('en-IN'), R - 3, y, { align: 'right' });
     y += 8;
@@ -298,7 +298,7 @@ async function downloadAsPDF() {
   doc.setTextColor(...textGray);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
-  doc.text('Subtotal', R - 40, y);
+  doc.text('Subtotal', 155, y);
   doc.setTextColor(...dark);
   doc.text(sym + d.subtotal.toLocaleString('en-IN'), R - 3, y, { align: 'right' });
   y += 7;
@@ -306,7 +306,7 @@ async function downloadAsPDF() {
   // GST
   if (d.gstRate > 0) {
     doc.setTextColor(...textGray);
-    doc.text(`GST (${d.gstRate}%)`, R - 40, y);
+    doc.text(`GST (${d.gstRate}%)`, 155, y);
     doc.setTextColor(...dark);
     doc.text(sym + d.gstAmount.toLocaleString('en-IN'), R - 3, y, { align: 'right' });
     y += 7;
@@ -318,7 +318,7 @@ async function downloadAsPDF() {
   doc.setTextColor(...white);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
-  doc.text('TOTAL AMOUNT DUE', L + 4, y + 3);
+  doc.text('TOTAL AMOUNT DUE', L + 4, y + 4);
   doc.text(sym + d.total.toLocaleString('en-IN'), R - 3, y + 3, { align: 'right' });
   y += 16;
 
