@@ -203,60 +203,48 @@ async function downloadAsPDF() {
   doc.text(`#${d.invoiceNum}`, R - 5, y + 11, { align: 'right' });
   y += 24;
 
-  // 3-column info section - fixed X positions
-  const col1 = L + 3;
-  const col2 = L + 68;
-  const col3 = L + 138;
+  // Info section - draw each column independently
+  const boxH = 36;
+  const colW = W / 3;
 
-  // Background
+  // Backgrounds
   doc.setFillColor(245, 245, 245);
-  doc.rect(L, y, W, 32, 'F');
+  doc.rect(L,          y, colW, boxH, 'F');
+  doc.setFillColor(238, 238, 238);
+  doc.rect(L + colW,   y, colW, boxH, 'F');
+  doc.setFillColor(245, 245, 245);
+  doc.rect(L + colW*2, y, colW, boxH, 'F');
 
-  // Column dividers
-  doc.setDrawColor(220, 220, 220);
-  doc.setLineWidth(0.3);
-  doc.line(col2 - 3, y + 2, col2 - 3, y + 30);
-  doc.line(col3 - 3, y + 2, col3 - 3, y + 30);
+  // --- FROM ---
+  const x1 = L + 4;
+  doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(...green);
+  doc.text('FROM', x1, y + 6);
+  doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...dark);
+  doc.text(String(d.from||'').substring(0,20), x1, y + 13);
+  doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(...textGray);
+  let fy = y + 19;
+  if (d.fromContact) { doc.text(String(d.fromContact).substring(0,24), x1, fy); fy += 5; }
+  if (d.fromGst)     { doc.text('GST: '+String(d.fromGst).substring(0,18), x1, fy); }
 
-  // Labels
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...green);
-  doc.text('FROM', col1, y + 6);
-  doc.text('BILL TO', col2, y + 6);
-  doc.text('DATES', col3, y + 6);
+  // --- BILL TO ---
+  const x2 = L + colW + 4;
+  doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(...green);
+  doc.text('BILL TO', x2, y + 6);
+  doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...dark);
+  doc.text(String(d.to||'').substring(0,20), x2, y + 13);
+  doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(...textGray);
+  if (d.toGst) { doc.text('GST: '+String(d.toGst).substring(0,18), x2, y + 19); }
 
-  // FROM data
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...dark);
-  doc.text(String(d.from || '').substring(0, 22), col1, y + 12);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
+  // --- DATES ---
+  const x3 = L + colW*2 + 4;
+  doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(...green);
+  doc.text('DATES', x3, y + 6);
+  doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(...dark);
+  doc.text('Invoice: ' + d.date, x3, y + 13);
   doc.setTextColor(...textGray);
-  let fy = y + 17;
-  if (d.fromContact) { doc.text(String(d.fromContact).substring(0, 25), col1, fy); fy += 5; }
-  if (d.fromGst) { doc.text('GST: ' + String(d.fromGst).substring(0, 20), col1, fy); }
+  doc.text('Due:     ' + d.dueDate, x3, y + 19);
 
-  // BILL TO data
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...dark);
-  doc.text(String(d.to || '').substring(0, 22), col2, y + 12);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
-  doc.setTextColor(...textGray);
-  if (d.toGst) { doc.text('GST: ' + String(d.toGst).substring(0, 20), col2, y + 17); }
-
-  // DATES data
-  doc.setFontSize(8.5);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...dark);
-  doc.text('Invoice: ' + d.date, col3, y + 12);
-  doc.setTextColor(...textGray);
-  doc.text('Due: ' + d.dueDate, col3, y + 18);
-
-  y += 38;
+  y += boxH + 6;
 
   // Green divider
   doc.setDrawColor(...green);
