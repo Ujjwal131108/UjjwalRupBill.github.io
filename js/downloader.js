@@ -190,7 +190,7 @@ async function downloadAsPDF() {
   const gray  = [245, 245, 245];
   const textGray = [80, 80, 80];
 
-  const L = 15, R = 195, W = R - L;
+  const L = 12, R = 198, W = R - L;
   let y = 15;
 
   // Header bar
