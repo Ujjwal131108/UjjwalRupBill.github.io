@@ -179,10 +179,10 @@ async function downloadAsPDF() {
   // jsPDF can't render ₹ — use Rs. as fallback
   const sym = (cur === '₹' || cur === 'INR') ? 'Rs.' : cur;
   const { jsPDF } = window.jspdf;
-  const itemCount = d.items.filter(item => item.desc || parseFloat(item.rate) > 0).length;
-const estimatedHeight = 100 + (itemCount * 8) + (d.notes ? 20 : 0) + (d.gstRate > 0 ? 7 : 0);
-const pageHeight = Math.max(estimatedHeight, 148); // minimum half A4
-const doc = new jsPDF({ unit: 'mm', format: [210, pageHeight], orientation: 'portrait' });
+  const validItemCount = d.items.filter(item => item.desc || parseFloat(item.rate) > 0).length;
+  const estimatedH = 120 + (validItemCount * 8) + (d.notes ? 25 : 0) + (d.gstRate > 0 ? 7 : 0);
+  const pageH = Math.max(estimatedH, 160);
+  const doc = new jsPDF({ unit: 'mm', format: [210, pageH], orientation: 'portrait' });
 
   const green = [116, 183, 46];
   const dark  = [20, 20, 20];
@@ -255,17 +255,17 @@ const doc = new jsPDF({ unit: 'mm', format: [210, pageHeight], orientation: 'por
   doc.line(L, y, R, y);
   y += 8;
 
-  // Table header
+  // Table header - taller bar, text centered vertically
   doc.setFillColor(...green);
-  doc.rect(L, y, W, 9, 'F');
+  doc.rect(L, y, W, 12, 'F');
   doc.setTextColor(...white);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
-  doc.text('Description', L + 3, y + 6);
-  doc.text('Qty', 135, y + 6, { align: 'center' });
-  doc.text('Rate', 162, y + 6, { align: 'right' });
-  doc.text('Amount', R - 3, y + 6, { align: 'right' });
-  y += 11;
+  doc.text('Description', L + 3, y + 8);
+  doc.text('Qty', 135, y + 8, { align: 'center' });
+  doc.text('Rate', 162, y + 8, { align: 'right' });
+  doc.text('Amount', R - 3, y + 8, { align: 'right' });
+  y += 14;
 
   // Items - skip empty rows
   doc.setFont('helvetica', 'normal');
