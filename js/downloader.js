@@ -315,7 +315,7 @@ async function downloadAsPDF() {
   doc.setTextColor(...white);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
-  doc.text('TOTAL AMOUNT DUE', R - 45, y + 3);
+  doc.text('TOTAL AMOUNT DUE', L + 4, y + 3);
   doc.text(sym + d.total.toLocaleString('en-IN'), R - 3, y + 3, { align: 'right' });
   y += 16;
 
