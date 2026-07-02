@@ -1,4 +1,4 @@
-/ Domain lock
+// Domain lock
 (function() {
   const allowed = ['ujjwal131108.github.io'];
   const host = window.location.hostname;
