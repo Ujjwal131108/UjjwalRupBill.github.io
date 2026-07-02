@@ -430,7 +430,7 @@ function downloadAsText() {
       t += `${'─'.repeat(55)}\n`;
       t += `${'Description'.padEnd(28)} ${'Qty'.padEnd(5)} ${'Rate'.padEnd(10)} Amount\n`;
       t += `${'─'.repeat(55)}\n`;
-      d.items.forEach(item => {
+     d.items.filter(item => item.desc || parseFloat(item.rate) > 0).forEach(item => {
         const a = (+item.qty||0)*(+item.rate||0);
         t += `${(item.desc||'').substring(0,27).padEnd(28)} ${String(item.qty).padEnd(5)} ${(cur+(+item.rate||0)).padEnd(10)} ${cur}${a.toLocaleString('en-IN')}\n`;
       });
