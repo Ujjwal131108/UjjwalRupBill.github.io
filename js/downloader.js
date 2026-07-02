@@ -226,7 +226,7 @@ async function downloadAsPDF() {
   const x1 = L + 4;
   doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(...green);
   doc.text('FROM', x1, y + 6);
-  doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...dark);
+  doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...white);
   doc.text(String(d.from||'').substring(0,20), x1, y + 13);
   doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(...textGray);
   let fy = y + 19;
@@ -237,7 +237,7 @@ async function downloadAsPDF() {
   const x2 = L + colW + 4;
   doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(...green);
   doc.text('BILL TO', x2, y + 6);
-  doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...dark);
+  doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...white);
   doc.text(String(d.to||'').substring(0,20), x2, y + 13);
   doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(...textGray);
   if (d.toGst) { doc.text('GST: '+String(d.toGst).substring(0,18), x2, y + 19); }
@@ -246,7 +246,7 @@ async function downloadAsPDF() {
   const x3 = L + colW*2 + 4;
   doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(...green);
   doc.text('DATES', x3, y + 6);
-  doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(...dark);
+  doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(...white);
   doc.text('Invoice: ' + d.date, x3, y + 13);
   doc.setTextColor(...textGray);
   doc.text('Due:     ' + d.dueDate, x3, y + 19);
@@ -283,12 +283,12 @@ async function downloadAsPDF() {
       doc.setFillColor(...gray);
       doc.rect(L, y - 5, W, 8, 'F');
     }
-    doc.setTextColor(...dark);
+    doc.setTextColor(...white);
     doc.text(String(item.desc || ''), L + 3, y);
     doc.text(String(qty), 130, y, { align: 'center' });
     doc.setTextColor(...textGray);
     doc.text(sym + rate.toLocaleString('en-IN'), 158, y, { align: 'right' });
-    doc.setTextColor(...dark);
+    doc.setTextColor(...white);
     doc.text(sym + amount.toLocaleString('en-IN'), R - 3, y, { align: 'right' });
     y += 8;
   });
@@ -305,7 +305,7 @@ async function downloadAsPDF() {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.text('Subtotal', L + 4, y + 1);
-  doc.setTextColor(...dark);
+  doc.setTextColor(...white);
   doc.text(sym + d.subtotal.toLocaleString('en-IN'), R - 3, y + 1, { align: 'right' });
   y += 9;
 
@@ -317,7 +317,7 @@ async function downloadAsPDF() {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.text('GST (' + d.gstRate + '%)', L + 4, y + 1);
-    doc.setTextColor(...dark);
+    doc.setTextColor(...white);
     doc.text(sym + d.gstAmount.toLocaleString('en-IN'), R - 3, y + 1, { align: 'right' });
     y += 9;
   }
@@ -342,7 +342,7 @@ async function downloadAsPDF() {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
     doc.text('NOTES', L + 4, y + 6);
-    doc.setTextColor(...dark);
+    doc.setTextColor(...white);
     doc.setFont('helvetica', 'normal');
     doc.text(noteLines, L + 4, y + 12);
   }
