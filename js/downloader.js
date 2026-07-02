@@ -7,10 +7,10 @@
     throw new Error('Unauthorized domain');
   }
 })();
- 
+
 let downloadCount = 0;
 let invoiceData = {};
- 
+
 // ── Load data from localStorage ──
 function loadInvoiceData() {
   const savedData = localStorage.getItem('invoiceData');
@@ -50,7 +50,7 @@ function loadInvoiceData() {
       ]
     };
   }
- 
+
   // Calculate totals
   let subtotal = 0;
   invoiceData.items.forEach(item => {
@@ -59,25 +59,25 @@ function loadInvoiceData() {
   invoiceData.subtotal = subtotal;
   invoiceData.gstAmount = invoiceData.gstRate > 0 ? subtotal * (invoiceData.gstRate / 100) : 0;
   invoiceData.total = subtotal + invoiceData.gstAmount;
- 
+
   updateInvoiceDisplay();
 }
- 
+
 // ── Update invoice display ──
 function updateInvoiceDisplay() {
   const cur = invoiceData.currency || '₹';
- 
+
   const invoiceNumEl = document.querySelector('.invoice-num');
   if (invoiceNumEl) invoiceNumEl.textContent = `#${invoiceData.invoiceNum}`;
- 
+
   const invDate = document.getElementById('invDate');
   if (invDate) invDate.textContent = invoiceData.date;
- 
+
   const dueDate = document.getElementById('dueDate');
   if (dueDate) dueDate.textContent = invoiceData.dueDate;
- 
+
   const sections = document.querySelectorAll('.invoice-section');
- 
+
   if (sections[0]) {
     sections[0].innerHTML = `
       <div class="section-label">From</div>
@@ -87,7 +87,7 @@ function updateInvoiceDisplay() {
         ${invoiceData.fromGst ? `GST: ${invoiceData.fromGst}` : ''}
       </div>`;
   }
- 
+
   if (sections[1]) {
     sections[1].innerHTML = `
       <div class="section-label">Bill To</div>
@@ -96,7 +96,7 @@ function updateInvoiceDisplay() {
         ${invoiceData.toGst ? `GST: ${invoiceData.toGst}` : ''}
       </div>`;
   }
- 
+
   const tbody = document.querySelector('.invoice-table tbody');
   if (tbody) {
     let html = '';
@@ -111,7 +111,7 @@ function updateInvoiceDisplay() {
         <td>${cur}${amount.toLocaleString('en-IN')}</td>
       </tr>`;
     });
- 
+
     html += `<tr class="total-row"><td colspan="3" style="text-align:right;">Subtotal</td><td>${cur}${invoiceData.subtotal.toLocaleString('en-IN')}</td></tr>`;
     if (invoiceData.gstRate > 0) {
       html += `<tr class="total-row"><td colspan="3" style="text-align:right;">GST (${invoiceData.gstRate}%)</td><td>${cur}${invoiceData.gstAmount.toLocaleString('en-IN')}</td></tr>`;
@@ -119,14 +119,14 @@ function updateInvoiceDisplay() {
     html += `<tr class="total-row"><td colspan="3" style="text-align:right;">Total Amount Due</td><td>${cur}${invoiceData.total.toLocaleString('en-IN')}</td></tr>`;
     tbody.innerHTML = html;
   }
- 
+
   if (sections[3] && invoiceData.notes) {
     sections[3].innerHTML = `
       <div class="section-label">Notes</div>
       <div class="section-content">${invoiceData.notes.replace(/\n/g, '<br>')}</div>`;
   }
 }
- 
+
 // ── Button listeners ──
 document.querySelectorAll('.download-btn').forEach(btn => {
   btn.addEventListener('click', async function() {
@@ -134,28 +134,28 @@ document.querySelectorAll('.download-btn').forEach(btn => {
     if (format) await handleDownload(format, this);
   });
 });
- 
+
 async function handleDownload(format, btn) {
   const originalHTML = btn.innerHTML;
   try {
     btn.disabled = true;
     btn.innerHTML = `<span>Processing...</span>`;
- 
+
     switch(format) {
       case 'pdf':   await downloadAsPDF(); break;
       case 'word':  await downloadAsWord(); break;
       case 'excel': await downloadAsExcel(); break;
       case 'txt':   await downloadAsText(); break;
     }
- 
+
     btn.innerHTML = `<span>✓ Downloaded!</span>`;
     downloadCount++;
     const counter = document.getElementById('counter');
     if (counter) counter.textContent = downloadCount;
- 
+
     showFeedback(`✓ Downloaded as ${format.toUpperCase()}!`, 'success');
     setTimeout(() => { btn.disabled = false; btn.innerHTML = originalHTML; }, 2000);
- 
+
   } catch (error) {
     console.error('Download failed:', error);
     btn.innerHTML = `<span>✗ Failed</span>`;
@@ -163,7 +163,7 @@ async function handleDownload(format, btn) {
     setTimeout(() => { btn.disabled = false; btn.innerHTML = originalHTML; }, 2000);
   }
 }
- 
+
 function showFeedback(message, type) {
   const feedback = document.getElementById('feedback');
   if (!feedback) return;
@@ -171,7 +171,7 @@ function showFeedback(message, type) {
   feedback.className = `feedback show ${type}`;
   setTimeout(() => feedback.classList.remove('show'), 3000);
 }
- 
+
 // ── PDF Download (using jsPDF directly - no html2pdf) ──
 async function downloadAsPDF() {
   const d = invoiceData;
@@ -180,16 +180,16 @@ async function downloadAsPDF() {
   const sym = (cur === '₹' || cur === 'INR') ? 'Rs.' : cur;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
- 
+
   const green = [116, 183, 46];
   const dark  = [20, 20, 20];
   const white = [255, 255, 255];
   const gray  = [245, 245, 245];
   const textGray = [80, 80, 80];
- 
+
   const L = 14, R = 190, W = R - L;
   let y = 15;
- 
+
   // Header bar
   doc.setFillColor(...dark);
   doc.rect(L, y, W, 16, 'F');
@@ -202,11 +202,11 @@ async function downloadAsPDF() {
   doc.setFont('helvetica', 'normal');
   doc.text(`#${d.invoiceNum}`, R - 5, y + 11, { align: 'right' });
   y += 24;
- 
+
   // Info section - draw each column independently
   const boxH = 36;
   const colW = W / 3;
- 
+
   // Backgrounds
   doc.setFillColor(245, 245, 245);
   doc.rect(L,          y, colW, boxH, 'F');
@@ -214,7 +214,7 @@ async function downloadAsPDF() {
   doc.rect(L + colW,   y, colW, boxH, 'F');
   doc.setFillColor(245, 245, 245);
   doc.rect(L + colW*2, y, colW, boxH, 'F');
- 
+
   // --- FROM ---
   const x1 = L + 4;
   doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(...green);
@@ -225,7 +225,7 @@ async function downloadAsPDF() {
   let fy = y + 19;
   if (d.fromContact) { doc.text(String(d.fromContact).substring(0,24), x1, fy); fy += 5; }
   if (d.fromGst)     { doc.text('GST: '+String(d.fromGst).substring(0,18), x1, fy); }
- 
+
   // --- BILL TO ---
   const x2 = L + colW + 4;
   doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(...green);
@@ -234,7 +234,7 @@ async function downloadAsPDF() {
   doc.text(String(d.to||'').substring(0,20), x2, y + 13);
   doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(...textGray);
   if (d.toGst) { doc.text('GST: '+String(d.toGst).substring(0,18), x2, y + 19); }
- 
+
   // --- DATES ---
   const x3 = L + colW*2 + 4;
   doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(...green);
@@ -243,15 +243,15 @@ async function downloadAsPDF() {
   doc.text('Invoice: ' + d.date, x3, y + 13);
   doc.setTextColor(...textGray);
   doc.text('Due:     ' + d.dueDate, x3, y + 19);
- 
+
   y += boxH + 6;
- 
+
   // Green divider
   doc.setDrawColor(...green);
   doc.setLineWidth(0.5);
   doc.line(L, y, R, y);
   y += 8;
- 
+
   // Table header - taller bar, text centered vertically
   doc.setFillColor(...green);
   doc.rect(L, y, W, 12, 'F');
@@ -263,7 +263,7 @@ async function downloadAsPDF() {
   doc.text('Rate', 158, y + 8, { align: 'right' });
   doc.text('Amount', R - 3, y + 8, { align: 'right' });
   y += 14;
- 
+
   // Items - skip empty rows
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
@@ -285,40 +285,46 @@ async function downloadAsPDF() {
     doc.text(sym + amount.toLocaleString('en-IN'), R - 3, y, { align: 'right' });
     y += 8;
   });
- 
+
   y += 4;
   doc.setDrawColor(220, 220, 220);
   doc.line(L, y, R, y);
   y += 6;
- 
-  // Subtotal
+
+  // Subtotal row
+  doc.setFillColor(248, 248, 248);
+  doc.rect(L, y - 4, W, 8, 'F');
   doc.setTextColor(...textGray);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
-  doc.text('Subtotal', 155, y);
+  doc.text('Subtotal', L + 4, y + 1);
   doc.setTextColor(...dark);
-  doc.text(sym + d.subtotal.toLocaleString('en-IN'), R - 3, y, { align: 'right' });
-  y += 7;
- 
-  // GST
+  doc.text(sym + d.subtotal.toLocaleString('en-IN'), R - 3, y + 1, { align: 'right' });
+  y += 9;
+
+  // GST row
   if (d.gstRate > 0) {
+    doc.setFillColor(248, 248, 248);
+    doc.rect(L, y - 4, W, 8, 'F');
     doc.setTextColor(...textGray);
-    doc.text(`GST (${d.gstRate}%)`, 155, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text('GST (' + d.gstRate + '%)', L + 4, y + 1);
     doc.setTextColor(...dark);
-    doc.text(sym + d.gstAmount.toLocaleString('en-IN'), R - 3, y, { align: 'right' });
-    y += 7;
+    doc.text(sym + d.gstAmount.toLocaleString('en-IN'), R - 3, y + 1, { align: 'right' });
+    y += 9;
   }
- 
+
   // Total bar
   doc.setFillColor(...green);
-  doc.rect(L, y - 4, W, 10, 'F');
+  doc.rect(L, y - 2, W, 11, 'F');
   doc.setTextColor(...white);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
-  doc.text('TOTAL AMOUNT DUE', L + 4, y + 4);
-  doc.text(sym + d.total.toLocaleString('en-IN'), R - 3, y + 3, { align: 'right' });
+  doc.text('TOTAL AMOUNT DUE', L + 4, y + 5);
+  doc.text(sym + d.total.toLocaleString('en-IN'), R - 3, y + 5, { align: 'right' });
   y += 16;
- 
+
   // Notes
   if (d.notes) {
     doc.setFillColor(240, 248, 232);
@@ -333,10 +339,10 @@ async function downloadAsPDF() {
     doc.setFont('helvetica', 'normal');
     doc.text(noteLines, L + 4, y + 12);
   }
- 
+
   doc.save(`invoice-${d.invoiceNum}.pdf`);
 }
- 
+
 // ── Word Download ──
 function downloadAsWord() {
   return new Promise((resolve) => {
@@ -369,7 +375,7 @@ function downloadAsWord() {
     resolve();
   });
 }
- 
+
 // ── Excel Download ──
 function downloadAsExcel() {
   return new Promise((resolve, reject) => {
@@ -391,7 +397,7 @@ function downloadAsExcel() {
       ['TOTAL AMOUNT DUE', '', '', d.total],
       d.notes ? [] : null, d.notes ? ['Notes', d.notes] : null
     ].filter(Boolean);
- 
+
     const ws = XLSX.utils.aoa_to_sheet(data);
     ws['!cols'] = [{wch:40},{wch:10},{wch:15},{wch:15}];
     const wb = XLSX.utils.book_new();
@@ -400,7 +406,7 @@ function downloadAsExcel() {
     resolve();
   });
 }
- 
+
 // ── Text Download ──
 function downloadAsText() {
   return new Promise((resolve, reject) => {
@@ -425,7 +431,7 @@ function downloadAsText() {
       if (d.gstRate > 0) t += `GST (${d.gstRate}%): ${cur}${d.gstAmount.toLocaleString('en-IN')}\n`;
       t += `TOTAL: ${cur}${d.total.toLocaleString('en-IN')}\n`;
       if (d.notes) t += `\nNotes:\n${d.notes}\n`;
- 
+
       const blob = new Blob([t], { type: 'text/plain' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -435,7 +441,7 @@ function downloadAsText() {
     } catch(e) { reject(e); }
   });
 }
- 
+
 // ── PNG Download ──
 async function downloadAsPNG() {
   try {
@@ -448,7 +454,6 @@ async function downloadAsPNG() {
     a.click();
   } catch(e) { alert('PNG download failed'); }
 }
- 
+
 // ── Init ──
 loadInvoiceData();
- 
