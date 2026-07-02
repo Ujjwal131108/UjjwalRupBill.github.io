@@ -180,18 +180,24 @@ async function downloadAsPDF() {
   const sym = (cur === '₹' || cur === 'INR') ? 'Rs.' : cur;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  // Dark background
+  doc.setFillColor(...dark);
+  doc.rect(0, 0, 210, 297, 'F');
 
-  const green = [116, 183, 46];
-  const dark  = [20, 20, 20];
-  const white = [255, 255, 255];
-  const gray  = [245, 245, 245];
-  const textGray = [80, 80, 80];
+  const green    = [116, 183, 46];   // #74B72E - primary
+  const dark     = [17, 19, 21];    // #111315 - bg
+  const surface  = [27, 29, 32];    // #1B1D20 - surface
+  const card     = [32, 35, 39];    // #202327 - card
+  const white    = [245, 245, 245]; // #F5F5F5 - text
+  const gray     = [32, 35, 39];    // #202327 - card bg for rows
+  const textGray = [160, 160, 160]; // #A0A0A0 - muted
+  const border   = [52, 55, 60];    // #34373C - border
 
   const L = 14, R = 190, W = R - L;
   let y = 15;
 
   // Header bar
-  doc.setFillColor(...dark);
+  doc.setFillColor(...surface);
   doc.rect(L, y, W, 16, 'F');
   doc.setTextColor(...green);
   doc.setFontSize(22);
@@ -208,11 +214,11 @@ async function downloadAsPDF() {
   const colW = W / 3;
 
   // Backgrounds
-  doc.setFillColor(245, 245, 245);
+  doc.setFillColor(...card);
   doc.rect(L,          y, colW, boxH, 'F');
-  doc.setFillColor(238, 238, 238);
+  doc.setFillColor(...surface);
   doc.rect(L + colW,   y, colW, boxH, 'F');
-  doc.setFillColor(245, 245, 245);
+  doc.setFillColor(...card);
   doc.rect(L + colW*2, y, colW, boxH, 'F');
 
   // --- FROM ---
@@ -287,12 +293,12 @@ async function downloadAsPDF() {
   });
 
   y += 4;
-  doc.setDrawColor(220, 220, 220);
+  doc.setDrawColor(...border);
   doc.line(L, y, R, y);
   y += 6;
 
   // Subtotal row
-  doc.setFillColor(248, 248, 248);
+  doc.setFillColor(...surface);
   doc.rect(L, y - 4, W, 8, 'F');
   doc.setTextColor(...textGray);
   doc.setFont('helvetica', 'normal');
@@ -304,7 +310,7 @@ async function downloadAsPDF() {
 
   // GST row
   if (d.gstRate > 0) {
-    doc.setFillColor(248, 248, 248);
+    doc.setFillColor(...surface);
     doc.rect(L, y - 4, W, 8, 'F');
     doc.setTextColor(...textGray);
     doc.setFont('helvetica', 'normal');
@@ -327,7 +333,7 @@ async function downloadAsPDF() {
 
   // Notes
   if (d.notes) {
-    doc.setFillColor(240, 248, 232);
+    doc.setFillColor(...card);
     const noteLines = doc.splitTextToSize(d.notes, W - 10);
     const noteH = noteLines.length * 5 + 10;
     doc.rect(L, y, W, noteH, 'F');
