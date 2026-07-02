@@ -180,9 +180,6 @@ async function downloadAsPDF() {
   const sym = (cur === '₹' || cur === 'INR') ? 'Rs.' : cur;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-  // Dark background
-  doc.setFillColor(...dark);
-  doc.rect(0, 0, 210, 297, 'F');
 
   const green    = [116, 183, 46];   // #74B72E - primary
   const dark     = [17, 19, 21];    // #111315 - bg
@@ -192,6 +189,10 @@ async function downloadAsPDF() {
   const gray     = [32, 35, 39];    // #202327 - card bg for rows
   const textGray = [160, 160, 160]; // #A0A0A0 - muted
   const border   = [52, 55, 60];    // #34373C - border
+
+  // Dark page background
+  doc.setFillColor(...dark);
+  doc.rect(0, 0, 210, 297, 'F');
 
   const L = 14, R = 190, W = R - L;
   let y = 15;
